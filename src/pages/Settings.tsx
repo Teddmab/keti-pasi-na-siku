@@ -66,7 +66,9 @@ const Settings = () => {
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [languageModalOpen, setLanguageModalOpen] = useState(false);
   const [kycModalOpen, setKycModalOpen] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(true);
+  const [biometricModalOpen, setBiometricModalOpen] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricStep, setBiometricStep] = useState<"intro" | "scanning" | "success" | "disable">("intro");
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("fr");
   const [kycLevel, setKycLevel] = useState(1);
   
@@ -130,8 +132,43 @@ const Settings = () => {
   };
 
   const handleBiometricToggle = (enabled: boolean) => {
-    setBiometricEnabled(enabled);
-    toast.success(enabled ? "Biométrie activée" : "Biométrie désactivée");
+    if (enabled) {
+      // Open enrollment flow
+      setBiometricStep("intro");
+      setBiometricModalOpen(true);
+    } else {
+      // Open disable confirmation
+      setBiometricStep("disable");
+      setBiometricModalOpen(true);
+    }
+  };
+
+  const handleBiometricEnroll = () => {
+    setBiometricStep("scanning");
+    
+    // Simulate biometric scanning
+    setTimeout(() => {
+      setBiometricStep("success");
+      setBiometricEnabled(true);
+      
+      setTimeout(() => {
+        setBiometricModalOpen(false);
+        setBiometricStep("intro");
+        toast.success("Biométrie activée avec succès !");
+      }, 1500);
+    }, 2500);
+  };
+
+  const handleBiometricDisable = () => {
+    setBiometricEnabled(false);
+    setBiometricModalOpen(false);
+    setBiometricStep("intro");
+    toast.success("Biométrie désactivée");
+  };
+
+  const resetBiometricModal = () => {
+    setBiometricModalOpen(false);
+    setBiometricStep("intro");
   };
 
   const handleLanguageSelect = (code: Language) => {
@@ -495,8 +532,197 @@ const Settings = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Biometric Modal/Drawer */}
+      {isMobile ? (
+        <Drawer open={biometricModalOpen} onOpenChange={(open) => !open && resetBiometricModal()}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>
+                {biometricStep === "disable" ? "Désactiver la biométrie" : "Activer la biométrie"}
+              </DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-8">
+              <BiometricModalContent />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={biometricModalOpen} onOpenChange={(open) => !open && resetBiometricModal()}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {biometricStep === "disable" ? "Désactiver la biométrie" : "Activer la biométrie"}
+              </DialogTitle>
+            </DialogHeader>
+            <BiometricModalContent />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
+
+  // Biometric Modal Content
+  function BiometricModalContent() {
+    return (
+      <div className="py-4">
+        <AnimatePresence mode="wait">
+          {biometricStep === "intro" && (
+            <motion.div
+              key="intro"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <div className="w-20 h-20 rounded-full bg-primary/10 mb-6 flex items-center justify-center">
+                <Fingerprint className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="font-bold text-foreground text-lg mb-2">
+                Sécurisez votre compte
+              </h3>
+              <p className="text-sm text-muted-foreground mb-8">
+                Utilisez votre empreinte digitale ou Face ID pour une connexion rapide et sécurisée
+              </p>
+              
+              <div className="w-full space-y-3 mb-6">
+                <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-xl">
+                  <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-foreground text-sm">Sécurité renforcée</p>
+                    <p className="text-xs text-muted-foreground">Protection supplémentaire</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-xl">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Fingerprint className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-foreground text-sm">Connexion rapide</p>
+                    <p className="text-xs text-muted-foreground">Accédez en un instant</p>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={handleBiometricEnroll} className="btn-primary w-full">
+                Activer la biométrie
+              </button>
+              <button 
+                onClick={resetBiometricModal} 
+                className="mt-3 text-muted-foreground font-medium"
+              >
+                Peut-être plus tard
+              </button>
+            </motion.div>
+          )}
+
+          {biometricStep === "scanning" && (
+            <motion.div
+              key="scanning"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center py-8"
+            >
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [1, 0.7, 1]
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="w-24 h-24 rounded-full bg-primary/10 mb-6 flex items-center justify-center relative"
+              >
+                <motion.div
+                  className="absolute inset-0 rounded-full border-4 border-primary/30"
+                  animate={{ 
+                    scale: [1, 1.3, 1],
+                    opacity: [0.5, 0, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity,
+                    ease: "easeOut"
+                  }}
+                />
+                <Fingerprint className="w-12 h-12 text-primary" />
+              </motion.div>
+              <h3 className="font-bold text-foreground text-lg mb-2">
+                Scan en cours...
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Placez votre doigt sur le capteur ou regardez la caméra
+              </p>
+            </motion.div>
+          )}
+
+          {biometricStep === "success" && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center text-center py-8"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200 }}
+                className="w-20 h-20 rounded-full bg-accent mb-6 flex items-center justify-center"
+              >
+                <Check className="w-10 h-10 text-accent-foreground" />
+              </motion.div>
+              <h3 className="font-bold text-foreground text-lg mb-2">
+                Biométrie activée!
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Votre compte est maintenant protégé par la biométrie
+              </p>
+            </motion.div>
+          )}
+
+          {biometricStep === "disable" && (
+            <motion.div
+              key="disable"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <div className="w-20 h-20 rounded-full bg-destructive/10 mb-6 flex items-center justify-center">
+                <Fingerprint className="w-10 h-10 text-destructive" />
+              </div>
+              <h3 className="font-bold text-foreground text-lg mb-2">
+                Désactiver la biométrie ?
+              </h3>
+              <p className="text-sm text-muted-foreground mb-8">
+                Vous devrez utiliser votre code PIN pour confirmer vos transactions
+              </p>
+              
+              <div className="w-full space-y-3">
+                <button 
+                  onClick={handleBiometricDisable} 
+                  className="w-full py-3 px-4 bg-destructive text-destructive-foreground font-semibold rounded-xl"
+                >
+                  Désactiver
+                </button>
+                <button 
+                  onClick={resetBiometricModal} 
+                  className="btn-secondary w-full"
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   // KYC Modal Content
   function KYCModalContent() {
