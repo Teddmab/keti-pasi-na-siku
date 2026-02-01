@@ -12,11 +12,18 @@ import {
   FileText,
   X,
   Check,
-  ArrowLeft
+  ArrowLeft,
+  Upload,
+  Camera,
+  Loader2,
+  CreditCard,
+  Wifi
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUSSDMode } from "@/context/USSDModeContext";
 import { toast } from "sonner";
+import mockApi from "@/lib/mockApi";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +49,7 @@ interface SettingItem {
 }
 
 type Language = "fr" | "sw" | "ln";
+type KYCStep = "intro" | "document" | "uploading" | "verifying" | "success";
 
 const languages: { code: Language; name: string; nativeName: string }[] = [
   { code: "fr", name: "Français", nativeName: "Français" },
@@ -52,12 +60,15 @@ const languages: { code: Language; name: string; nativeName: string }[] = [
 const Settings = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isUSSDMode, toggleUSSDMode } = useUSSDMode();
   
   // Modal states
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [languageModalOpen, setLanguageModalOpen] = useState(false);
+  const [kycModalOpen, setKycModalOpen] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("fr");
+  const [kycLevel, setKycLevel] = useState(1);
   
   // PIN change states
   const [pinStep, setPinStep] = useState<"current" | "new" | "confirm">("current");
@@ -65,6 +76,10 @@ const Settings = () => {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [pinError, setPinError] = useState("");
+  
+  // KYC states
+  const [kycStep, setKycStep] = useState<KYCStep>("intro");
+  const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
 
   const getLanguageName = (code: Language) => {
     return languages.find(l => l.code === code)?.name || "Français";
@@ -125,12 +140,39 @@ const Settings = () => {
     toast.success(`Langue changée en ${getLanguageName(code)}`);
   };
 
+  // KYC Flow handlers
+  const handleKycDocumentSelect = () => {
+    // Simulate file selection
+    setSelectedDocument({ name: "carte_electeur.jpg" } as File);
+    setKycStep("uploading");
+    
+    setTimeout(async () => {
+      setKycStep("verifying");
+      try {
+        await mockApi.verifyIdentity("carte_electeur");
+        setKycStep("success");
+        setKycLevel(2);
+        toast.success("Niveau KYC mis à jour!");
+      } catch (error) {
+        toast.error("Échec de la vérification");
+        setKycStep("intro");
+      }
+    }, 2000);
+  };
+
+  const resetKycModal = () => {
+    setKycModalOpen(false);
+    setKycStep("intro");
+    setSelectedDocument(null);
+  };
+
   const settingGroups: { title: string; items: SettingItem[] }[] = [
     {
       title: "Compte",
       items: [
         { id: "profile", icon: User, label: "Mon profil", value: "Jean-Pierre" },
-        { id: "kyc", icon: FileText, label: "Niveau KYC", value: "Niveau 1", badge: "Améliorer" },
+        { id: "kyc", icon: FileText, label: "Niveau KYC", value: `Niveau ${kycLevel}`, badge: kycLevel < 3 ? "Améliorer" : undefined, onClick: () => setKycModalOpen(true) },
+        { id: "cards", icon: CreditCard, label: "Mes Cartes Virtuelles", onClick: () => navigate("/cards") },
         { id: "notifications", icon: Bell, label: "Notifications" },
       ],
     },
@@ -145,6 +187,7 @@ const Settings = () => {
       title: "Préférences",
       items: [
         { id: "language", icon: Globe, label: "Langue", value: getLanguageName(selectedLanguage), onClick: () => setLanguageModalOpen(true) },
+        { id: "ussd", icon: Wifi, label: "Mode Bas Débit", value: isUSSDMode ? "Activé" : "Désactivé" },
       ],
     },
     {
@@ -323,6 +366,19 @@ const Settings = () => {
                         onCheckedChange={handleBiometricToggle}
                       />
                     </>
+                  ) : item.id === "ussd" ? (
+                    <>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-secondary">
+                        <item.icon className="w-5 h-5 text-foreground" />
+                      </div>
+                      <span className="flex-1 text-left font-medium text-foreground">
+                        {item.label}
+                      </span>
+                      <Switch
+                        checked={isUSSDMode}
+                        onCheckedChange={toggleUSSDMode}
+                      />
+                    </>
                   ) : (
                     <button
                       onClick={item.onClick}
@@ -416,8 +472,182 @@ const Settings = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* KYC Modal/Drawer */}
+      {isMobile ? (
+        <Drawer open={kycModalOpen} onOpenChange={(open) => !open && resetKycModal()}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Vérification KYC</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-8">
+              <KYCModalContent />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={kycModalOpen} onOpenChange={(open) => !open && resetKycModal()}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Vérification KYC - Conformité BCC</DialogTitle>
+            </DialogHeader>
+            <KYCModalContent />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
+
+  // KYC Modal Content
+  function KYCModalContent() {
+    return (
+      <div className="py-4">
+        <AnimatePresence mode="wait">
+          {kycStep === "intro" && (
+            <motion.div
+              key="intro"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-4"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-primary/10 mx-auto mb-4 flex items-center justify-center">
+                  <FileText className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-bold text-foreground">Niveau actuel: {kycLevel}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Augmentez votre niveau pour des limites plus élevées
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className={`p-4 rounded-xl border ${kycLevel >= 1 ? "border-accent bg-accent/5" : "border-border"}`}>
+                  <div className="flex items-center gap-3">
+                    {kycLevel >= 1 ? <Check className="w-5 h-5 text-accent" /> : <div className="w-5 h-5 rounded-full border-2 border-border" />}
+                    <div>
+                      <p className="font-medium text-foreground">Niveau 1 - Basique</p>
+                      <p className="text-xs text-muted-foreground">Numéro de téléphone vérifié</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`p-4 rounded-xl border ${kycLevel >= 2 ? "border-accent bg-accent/5" : "border-border"}`}>
+                  <div className="flex items-center gap-3">
+                    {kycLevel >= 2 ? <Check className="w-5 h-5 text-accent" /> : <div className="w-5 h-5 rounded-full border-2 border-border" />}
+                    <div>
+                      <p className="font-medium text-foreground">Niveau 2 - Vérifié</p>
+                      <p className="text-xs text-muted-foreground">Carte d'Électeur / Pièce d'identité</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`p-4 rounded-xl border ${kycLevel >= 3 ? "border-accent bg-accent/5" : "border-border"}`}>
+                  <div className="flex items-center gap-3">
+                    {kycLevel >= 3 ? <Check className="w-5 h-5 text-accent" /> : <div className="w-5 h-5 rounded-full border-2 border-border" />}
+                    <div>
+                      <p className="font-medium text-foreground">Niveau 3 - Premium</p>
+                      <p className="text-xs text-muted-foreground">Justificatif de domicile</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {kycLevel < 2 && (
+                <button
+                  onClick={() => setKycStep("document")}
+                  className="btn-primary w-full mt-6"
+                >
+                  Passer au Niveau 2
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {kycStep === "document" && (
+            <motion.div
+              key="document"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-4"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-primary/10 mx-auto mb-4 flex items-center justify-center">
+                  <Camera className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-bold text-foreground">Carte d'Électeur</h3>
+                <p className="text-sm text-muted-foreground">
+                  Téléchargez une photo claire de votre Carte d'Électeur
+                </p>
+              </div>
+
+              <button
+                onClick={handleKycDocumentSelect}
+                className="w-full p-8 border-2 border-dashed border-primary/30 rounded-2xl hover:bg-primary/5 transition-colors"
+              >
+                <Upload className="w-10 h-10 text-primary mx-auto mb-3" />
+                <p className="font-medium text-foreground">Cliquez pour télécharger</p>
+                <p className="text-xs text-muted-foreground">PNG, JPG jusqu'à 5MB</p>
+              </button>
+
+              <button
+                onClick={() => setKycStep("intro")}
+                className="btn-secondary w-full"
+              >
+                Retour
+              </button>
+            </motion.div>
+          )}
+
+          {(kycStep === "uploading" || kycStep === "verifying") && (
+            <motion.div
+              key="processing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="py-12 text-center"
+            >
+              <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+              <h3 className="font-bold text-foreground mb-2">
+                {kycStep === "uploading" ? "Téléchargement..." : "Vérification en cours..."}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {kycStep === "uploading" 
+                  ? "Envoi de votre document" 
+                  : "Vérification d'identité - Conformité AML/KYC"}
+              </p>
+            </motion.div>
+          )}
+
+          {kycStep === "success" && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="py-12 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200 }}
+                className="w-16 h-16 rounded-full bg-accent mx-auto mb-4 flex items-center justify-center"
+              >
+                <Check className="w-8 h-8 text-accent-foreground" />
+              </motion.div>
+              <h3 className="font-bold text-foreground mb-2">Vérification réussie!</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Vous êtes maintenant au Niveau {kycLevel}
+              </p>
+              <button onClick={resetKycModal} className="btn-primary">
+                Terminé
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 };
 
 export default Settings;

@@ -1,6 +1,7 @@
-import { Home, Clock, MapPin, Settings, Bell } from "lucide-react";
+import { Home, Clock, MapPin, Settings, Scan } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
+import { motion } from "framer-motion";
 
 interface BottomNavProps {
   active: "home" | "history" | "agents" | "settings";
@@ -14,6 +15,7 @@ const BottomNav = ({ active }: BottomNavProps) => {
   const navItems = [
     { id: "home" as const, icon: Home, label: "Accueil", path: "/home" },
     { id: "history" as const, icon: Clock, label: "Historique", path: "/history" },
+    { id: "scanner" as const, icon: Scan, label: "Scanner", path: "/scanner", isCenter: true },
     { id: "agents" as const, icon: MapPin, label: "Agents", path: "/agents" },
     { id: "settings" as const, icon: Settings, label: "Paramètres", path: "/settings" },
   ];
@@ -25,18 +27,28 @@ const BottomNav = ({ active }: BottomNavProps) => {
           <button
             key={item.id}
             onClick={() => navigate(item.path)}
-            className={`nav-item relative ${active === item.id ? "active" : ""}`}
+            className={`nav-item relative ${active === item.id ? "active" : ""} ${item.isCenter ? "-mt-6" : ""}`}
           >
-            <div className="relative">
-              <item.icon className={`w-6 h-6 transition-colors ${active === item.id ? "text-primary" : ""}`} />
-              {/* Active indicator dot */}
-              {active === item.id && (
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
-              )}
-            </div>
-            <span className={`text-xs font-medium ${active === item.id ? "text-primary" : ""}`}>
-              {item.label}
-            </span>
+            {item.isCenter ? (
+              <motion.div
+                whileTap={{ scale: 0.9 }}
+                className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg"
+              >
+                <item.icon className="w-6 h-6 text-primary-foreground" />
+              </motion.div>
+            ) : (
+              <>
+                <div className="relative">
+                  <item.icon className={`w-6 h-6 transition-colors ${active === item.id ? "text-primary" : ""}`} />
+                  {active === item.id && (
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                  )}
+                </div>
+                <span className={`text-xs font-medium ${active === item.id ? "text-primary" : ""}`}>
+                  {item.label}
+                </span>
+              </>
+            )}
           </button>
         ))}
       </div>
