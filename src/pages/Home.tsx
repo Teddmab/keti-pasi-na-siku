@@ -103,13 +103,13 @@ const Home = () => {
 
         {/* Action Buttons */}
         <div className="px-6 mb-6">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
             <motion.button
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
               onClick={() => navigate("/send")}
-              className="card-elevated p-5 flex flex-col items-center gap-3"
+              className="card-elevated action-card p-5 flex flex-col items-center gap-3"
             >
               <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
                 <ArrowUpRight className="w-7 h-7 text-primary-foreground" />
@@ -122,7 +122,7 @@ const Home = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
               onClick={() => navigate("/receive")}
-              className="card-elevated p-5 flex flex-col items-center gap-3"
+              className="card-elevated action-card p-5 flex flex-col items-center gap-3"
             >
               <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center">
                 <ArrowDownLeft className="w-7 h-7 text-accent-foreground" />
@@ -135,11 +135,11 @@ const Home = () => {
         {/* Quick Actions */}
         <div className="px-6 mb-6">
           <div className="flex gap-3">
-            <button className="flex-1 btn-secondary flex items-center justify-center gap-2">
+            <button className="flex-1 btn-secondary action-card flex items-center justify-center gap-2">
               <QrCode className="w-5 h-5" />
               <span>Cash In</span>
             </button>
-            <button className="flex-1 btn-secondary flex items-center justify-center gap-2">
+            <button className="flex-1 btn-secondary action-card flex items-center justify-center gap-2">
               <Wallet className="w-5 h-5" />
               <span>Cash Out</span>
             </button>
@@ -273,13 +273,20 @@ const Home = () => {
             <span className="font-medium text-foreground">Contacts fréquents</span>
           </div>
           <div className="flex -space-x-2">
-            {["SM", "JK", "ML", "PK"].map((initials, i) => (
-              <div
+            {[
+              { initials: "SM", name: "Sarah Mbuyi", phone: "0891234567" },
+              { initials: "JK", name: "Jean Kabongo", phone: "0897654321" },
+              { initials: "ML", name: "Marie Lukusa", phone: "0812345678" },
+              { initials: "PK", name: "Patrick Kabongo", phone: "0898765432" },
+            ].map((contact, i) => (
+              <button
                 key={i}
-                className="w-10 h-10 rounded-full bg-secondary border-2 border-card flex items-center justify-center text-xs font-bold text-foreground"
+                onClick={() => navigate(`/send?phone=${contact.phone}&name=${encodeURIComponent(contact.name)}`)}
+                className="w-10 h-10 rounded-full bg-secondary border-2 border-card flex items-center justify-center text-xs font-bold text-foreground hover:scale-110 hover:z-10 transition-transform"
+                title={contact.name}
               >
-                {initials}
-              </div>
+                {contact.initials}
+              </button>
             ))}
             <div className="w-10 h-10 rounded-full bg-primary border-2 border-card flex items-center justify-center text-xs font-bold text-primary-foreground">
               +5
@@ -295,7 +302,7 @@ const Home = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
           onClick={() => navigate("/send")}
-          className="card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform"
+          className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
             <ArrowUpRight className="w-7 h-7 text-primary-foreground" />
@@ -311,7 +318,7 @@ const Home = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.15 }}
           onClick={() => navigate("/receive")}
-          className="card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform"
+          className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center">
             <ArrowDownLeft className="w-7 h-7 text-accent-foreground" />
@@ -326,7 +333,7 @@ const Home = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform"
+          className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
             <QrCode className="w-7 h-7 text-foreground" />
@@ -341,7 +348,7 @@ const Home = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.25 }}
-          className="card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform"
+          className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
             <Wallet className="w-7 h-7 text-foreground" />

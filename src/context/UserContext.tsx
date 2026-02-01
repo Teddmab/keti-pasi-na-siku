@@ -205,7 +205,7 @@ const generateMockTransactions = (): Transaction[] => {
 const initialNotifications: Notification[] = [];
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [balance, setBalance] = useState(450000);
+  const [balance, setBalance] = useState(72000);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>(generateMockTransactions);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);

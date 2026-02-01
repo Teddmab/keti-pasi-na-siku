@@ -108,7 +108,7 @@ const TransactionItem = ({
       
       <div className="text-right flex items-center gap-2">
         <div>
-          <p className={`font-semibold ${type === "received" || type === "cashin" ? "text-accent" : "text-foreground"}`}>
+          <p className={`font-semibold ${type === "received" || type === "cashin" ? "text-[hsl(var(--transaction-incoming))]" : "text-[hsl(var(--transaction-outgoing))]"}`}>
             {type === "received" || type === "cashin" ? "+" : "-"}{formatCurrency(amount)} FC
           </p>
           {getStatusBadge()}

@@ -44,6 +44,10 @@
     --success: 168 76% 42%;
     --success-foreground: 0 0% 100%;
     
+    /* Transaction Colors */
+    --transaction-outgoing: 222 47% 20%;
+    --transaction-incoming: 160 84% 39%;
+    
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -174,11 +178,46 @@
     box-shadow: var(--shadow-card);
   }
   
-  /* Balance Card Gradient */
+  /* Balance Card Gradient with Premium Pattern */
   .balance-card {
     background: var(--gradient-primary);
-    @apply text-primary-foreground rounded-3xl p-6;
+    @apply text-primary-foreground rounded-3xl p-6 relative overflow-hidden;
     box-shadow: var(--shadow-lg);
+  }
+  
+  .balance-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 200%;
+    height: 200%;
+    background: 
+      radial-gradient(circle at 30% 70%, hsl(0 0% 100% / 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 70% 30%, hsl(0 0% 100% / 0.05) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  
+  .balance-card::after {
+    content: 'K';
+    position: absolute;
+    right: -20px;
+    bottom: -40px;
+    font-size: 180px;
+    font-weight: 800;
+    color: hsl(0 0% 100% / 0.08);
+    pointer-events: none;
+    line-height: 1;
+  }
+  
+  /* Action Card Hover Effects */
+  .action-card {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -6px hsl(222 47% 11% / 0.15), 0 6px 12px -4px hsl(222 47% 11% / 0.1);
   }
   
   /* Transaction Item */

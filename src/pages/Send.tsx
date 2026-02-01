@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, QrCode, Check, Fingerprint, AlertCircle, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUser, Transaction } from "@/context/UserContext";
 import confetti from "canvas-confetti";
 
@@ -24,6 +24,7 @@ const networks: Network[] = [
 
 const Send = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { balance, sendMoney } = useUser();
   const [step, setStep] = useState<SendStep>("network");
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
@@ -33,6 +34,19 @@ const Send = () => {
   const [pin, setPin] = useState("");
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
   const [error, setError] = useState("");
+
+  // Pre-fill from URL params (when clicking frequent contacts)
+  useEffect(() => {
+    const phone = searchParams.get("phone");
+    const name = searchParams.get("name");
+    if (phone && name) {
+      setRecipient(phone);
+      setRecipientName(name);
+      // Auto-select Ketney network for pre-filled contacts
+      setSelectedNetwork(networks.find(n => n.id === "ketney") || null);
+      setStep("amount");
+    }
+  }, [searchParams]);
 
   const numericAmount = Number(amount.replace(/\D/g, ""));
   const fee = selectedNetwork ? Math.ceil(numericAmount * (selectedNetwork.feePercent / 100)) : 0;
