@@ -220,16 +220,6 @@ const Home = () => {
           )}
         </div>
 
-        {/* Floating QR Button */}
-        <motion.button
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-          className="fixed bottom-24 right-6 fab"
-        >
-          <Scan className="w-6 h-6" />
-        </motion.button>
-
         {/* Transaction Receipt Modal */}
         <TransactionReceipt
           transaction={selectedTransaction}
