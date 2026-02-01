@@ -17,13 +17,12 @@ const ExchangeRateWidget = ({ rate, previousRate, compact = false }: ExchangeRat
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary rounded-full">
-        <span className="text-xs text-muted-foreground">USD/FC</span>
-        <span className="text-sm font-semibold text-foreground">{formatRate(rate)}</span>
+      <div className="flex items-center gap-1 px-2 py-1 bg-secondary rounded-full">
+        <span className="text-[10px] text-muted-foreground hidden xs:inline">USD</span>
+        <span className="text-xs font-semibold text-foreground">{formatRate(rate)}</span>
         {change !== 0 && (
-          <span className={`text-xs font-medium flex items-center gap-0.5 ${isUp ? "text-destructive" : "text-accent"}`}>
-            {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {Math.abs(change).toFixed(1)}%
+          <span className={`text-[10px] font-medium flex items-center ${isUp ? "text-destructive" : "text-accent"}`}>
+            {isUp ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
           </span>
         )}
       </div>

@@ -67,27 +67,27 @@ const Home = () => {
         {/* Header */}
         <div className="px-6 pt-6 pb-4 safe-top">
           <div className="flex items-center justify-between mb-4">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-muted-foreground text-sm">Bonjour 👋</p>
-              <h1 className="text-xl font-bold text-foreground">Jean-Pierre</h1>
+              <h1 className="text-xl font-bold text-foreground truncate">Jean-Pierre</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {/* Exchange Rate Badge */}
               <ExchangeRateWidget rate={exchangeRate} previousRate={2830} compact />
               <button 
                 onClick={() => navigate("/support")}
-                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center"
+                className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center"
                 title="Aide & FAQ"
               >
-                <HelpCircle className="w-5 h-5 text-foreground" />
+                <HelpCircle className="w-4 h-4 text-foreground" />
               </button>
               <button 
                 onClick={() => navigate("/notifications")}
-                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center relative"
+                className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center relative"
               >
-                <Bell className="w-5 h-5 text-foreground" />
+                <Bell className="w-4 h-4 text-foreground" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
                     {unreadNotifications}
                   </span>
                 )}

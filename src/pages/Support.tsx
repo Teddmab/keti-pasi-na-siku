@@ -239,23 +239,23 @@ const Support = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="px-6 py-4 flex gap-2">
+      <div className="px-4 py-3 flex gap-1.5">
         {[
           { id: "faq", icon: MessageCircle, label: "FAQ" },
-          { id: "ai", icon: Sparkles, label: "Assistant IA" },
-          { id: "chat", icon: Headphones, label: "Chat Live" },
+          { id: "ai", icon: Sparkles, label: "IA" },
+          { id: "chat", icon: Headphones, label: "Chat" },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl font-medium transition-colors ${
               activeTab === tab.id
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-foreground hover:bg-secondary/80"
             }`}
           >
             <tab.icon className="w-4 h-4" />
-            <span className="text-sm">{tab.label}</span>
+            <span className="text-xs">{tab.label}</span>
           </button>
         ))}
       </div>

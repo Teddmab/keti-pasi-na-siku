@@ -78,12 +78,12 @@ const History = () => {
         )}
 
         {/* Filters */}
-        <div className={`flex gap-2 overflow-x-auto pb-2 scrollbar-hide ${isMobile ? "-mx-6 px-6" : ""}`}>
+        <div className={`flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide ${isMobile ? "-mx-6 px-6" : ""}`}>
           {filterOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => setFilter(option.value)}
-              className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === option.value
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-muted"
