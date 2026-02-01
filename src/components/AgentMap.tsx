@@ -1,10 +1,6 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Fix for default marker icons in React-Leaflet
-delete (L.Icon.Default.prototype as { _getIconUrl?: () => string })._getIconUrl;
 
 interface Agent {
   id: string;
@@ -65,68 +61,105 @@ const createNetworkIcon = (network: string, isOpen: boolean) => {
   });
 };
 
-// Component to handle map view changes
-const MapController = ({ center, zoom }: { center: [number, number]; zoom: number }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
-  
-  return null;
-};
-
 const AgentMap = ({ agents, selectedAgent, onAgentSelect }: AgentMapProps) => {
+  const mapRef = useRef<L.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+
   // Center on Kinshasa, DRC
-  const defaultCenter: [number, number] = [-4.4419, 15.2663];
-  const center: [number, number] = selectedAgent 
-    ? [selectedAgent.lat, selectedAgent.lng] 
-    : defaultCenter;
-  const zoom = selectedAgent ? 16 : 13;
+  const defaultCenter: L.LatLngExpression = [-4.3276, 15.3136];
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    const map = L.map(mapContainerRef.current, {
+      center: defaultCenter,
+      zoom: 13,
+      zoomControl: false,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Add markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear existing markers
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    // Add new markers
+    agents.forEach((agent) => {
+      const marker = L.marker([agent.lat, agent.lng], {
+        icon: createNetworkIcon(agent.network, agent.isOpen),
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="padding: 4px;">
+          <h3 style="font-weight: bold; font-size: 14px; margin: 0 0 4px 0;">${agent.name}</h3>
+          <p style="font-size: 12px; color: #666; margin: 0 0 4px 0;">${agent.address}</p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span style="font-size: 12px; font-weight: 500; color: ${agent.isOpen ? "#16a34a" : "#dc2626"};">
+              ${agent.isOpen ? "Ouvert" : "Fermé"}
+            </span>
+            <span style="font-size: 12px; color: #888;">${agent.hours}</span>
+          </div>
+          <a href="tel:${agent.phone}" style="font-size: 12px; color: #2563eb; text-decoration: none;">
+            ${agent.phone}
+          </a>
+        </div>
+      `);
+
+      marker.on("click", () => {
+        onAgentSelect?.(agent);
+      });
+
+      markersRef.current.push(marker);
+    });
+  }, [agents, onAgentSelect]);
+
+  // Handle selected agent changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selectedAgent) return;
+
+    map.setView([selectedAgent.lat, selectedAgent.lng], 16, {
+      animate: true,
+      duration: 0.5,
+    });
+
+    // Open popup for selected agent
+    const marker = markersRef.current.find((m) => {
+      const pos = m.getLatLng();
+      return pos.lat === selectedAgent.lat && pos.lng === selectedAgent.lng;
+    });
+    if (marker) {
+      marker.openPopup();
+    }
+  }, [selectedAgent]);
 
   return (
-    <MapContainer
-      center={defaultCenter}
-      zoom={13}
-      style={{ height: "100%", width: "100%", borderRadius: "1.5rem" }}
-      zoomControl={false}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <MapController center={center} zoom={zoom} />
-      
-      {agents.map((agent) => (
-        <Marker
-          key={agent.id}
-          position={[agent.lat, agent.lng]}
-          icon={createNetworkIcon(agent.network, agent.isOpen)}
-          eventHandlers={{
-            click: () => onAgentSelect?.(agent),
-          }}
-        >
-          <Popup>
-            <div className="p-1">
-              <h3 className="font-bold text-sm">{agent.name}</h3>
-              <p className="text-xs text-gray-600">{agent.address}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-xs font-medium ${agent.isOpen ? "text-green-600" : "text-red-600"}`}>
-                  {agent.isOpen ? "Ouvert" : "Fermé"}
-                </span>
-                <span className="text-xs text-gray-500">{agent.hours}</span>
-              </div>
-              <a 
-                href={`tel:${agent.phone}`} 
-                className="text-xs text-blue-600 hover:underline mt-1 block"
-              >
-                {agent.phone}
-              </a>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div
+      ref={mapContainerRef}
+      style={{
+        height: "100%",
+        width: "100%",
+        borderRadius: "1.5rem",
+        overflow: "hidden",
+      }}
+    />
   );
 };
 
