@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AppLayout from "@/components/AppLayout";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -21,19 +22,17 @@ const App = () => (
       <Toaster />
       <Sonner position="top-center" />
       <BrowserRouter>
-        <div className="max-w-md mx-auto min-h-screen bg-background shadow-xl">
-          <Routes>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/send" element={<Send />} />
-            <Route path="/receive" element={<Receive />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/agents" element={<Agents />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<AppLayout><Welcome /></AppLayout>} />
+          <Route path="/login" element={<AppLayout><Login /></AppLayout>} />
+          <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
+          <Route path="/send" element={<AppLayout><Send /></AppLayout>} />
+          <Route path="/receive" element={<AppLayout><Receive /></AppLayout>} />
+          <Route path="/history" element={<AppLayout><History /></AppLayout>} />
+          <Route path="/agents" element={<AppLayout><Agents /></AppLayout>} />
+          <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
