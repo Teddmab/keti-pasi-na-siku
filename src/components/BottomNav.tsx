@@ -1,53 +1,50 @@
-import { Home, Clock, MapPin, Settings, Scan } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "@/context/UserContext";
+import { Home, Clock, Scan } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
-interface BottomNavProps {
-  active: "home" | "history" | "agents" | "settings";
-}
-
-const BottomNav = ({ active }: BottomNavProps) => {
+const BottomNav = () => {
   const navigate = useNavigate();
-  const { notifications } = useUser();
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const location = useLocation();
+  
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === "/home" || path === "/") return "home";
+    if (path === "/history") return "history";
+    if (path === "/scanner") return "scanner";
+    return "home";
+  };
+  
+  const active = getActiveTab();
 
   const navItems = [
     { id: "home" as const, icon: Home, label: "Accueil", path: "/home" },
-    { id: "history" as const, icon: Clock, label: "Historique", path: "/history" },
     { id: "scanner" as const, icon: Scan, label: "Scanner", path: "/scanner", isCenter: true },
-    { id: "agents" as const, icon: MapPin, label: "Agents", path: "/agents" },
-    { id: "settings" as const, icon: Settings, label: "Paramètres", path: "/settings" },
+    { id: "history" as const, icon: Clock, label: "Historique", path: "/history" },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40">
-      <div className="flex items-center justify-around py-2 px-1 max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border safe-bottom z-40">
+      <div className="flex items-center justify-around py-2 px-6 max-w-md mx-auto">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => navigate(item.path)}
-            className={`nav-item relative flex-1 ${active === item.id ? "active" : ""} ${item.isCenter ? "-mt-6" : ""}`}
+            className={`relative flex flex-col items-center justify-center ${item.isCenter ? "flex-none" : "flex-1"}`}
           >
             {item.isCenter ? (
               <motion.div
                 whileTap={{ scale: 0.9 }}
-                className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg mx-auto"
+                className="w-14 h-14 -mt-5 rounded-full bg-primary flex items-center justify-center shadow-lg"
               >
-                <item.icon className="w-5 h-5 text-primary-foreground" />
+                <item.icon className="w-6 h-6 text-primary-foreground" />
               </motion.div>
             ) : (
-              <>
-                <div className="relative">
-                  <item.icon className={`w-5 h-5 transition-colors mx-auto ${active === item.id ? "text-primary" : ""}`} />
-                  {active === item.id && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
-                  )}
-                </div>
-                <span className={`text-[10px] font-medium mt-0.5 ${active === item.id ? "text-primary" : ""}`}>
+              <div className="flex flex-col items-center gap-0.5 py-1">
+                <item.icon className={`w-6 h-6 transition-colors ${active === item.id ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-[11px] font-medium ${active === item.id ? "text-primary" : "text-muted-foreground"}`}>
                   {item.label}
                 </span>
-              </>
+              </div>
             )}
           </button>
         ))}

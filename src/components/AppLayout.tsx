@@ -42,7 +42,7 @@ const AppLayout = ({ children, showNav = true }: AppLayoutProps) => {
       <div className="min-h-screen bg-background">
         <div className="max-w-md mx-auto min-h-screen bg-background">
           {children}
-          <BottomNav active={getActiveNav()} />
+          <BottomNav />
         </div>
       </div>
     );
