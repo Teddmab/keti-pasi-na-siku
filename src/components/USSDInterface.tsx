@@ -422,6 +422,12 @@ const USSDInterface = () => {
               <p className="text-xs">*123#</p>
             </div>
           </div>
+          <button
+            onClick={toggleUSSDMode}
+            className="w-full mt-3 py-2 border border-green-400 hover:bg-green-400/20 transition-colors text-sm"
+          >
+            ✕ Quitter Mode Bas Débit
+          </button>
         </div>
 
         {/* Screen Content */}
