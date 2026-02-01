@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, QrCode, Check, Fingerprint, AlertCircle, X } from "lucide-react";
+import { ArrowLeft, QrCode, Check, Fingerprint, AlertCircle, X, Users, Info } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUser, Transaction } from "@/context/UserContext";
+import ContactPicker from "@/components/ContactPicker";
+import MFAOverlay from "@/components/MFAOverlay";
 import confetti from "canvas-confetti";
 
 type SendStep = "network" | "recipient" | "amount" | "confirm" | "pin" | "success";
@@ -13,14 +15,19 @@ interface Network {
   icon: string;
   color: string;
   feePercent: number;
+  clearingFee: number; // Inter-network clearing fee
+  isInterNetwork: boolean;
 }
 
 const networks: Network[] = [
-  { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500", feePercent: 1 },
-  { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary", feePercent: 1 },
-  { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500", feePercent: 1 },
-  { id: "ketney", name: "Ketney à Ketney", icon: "💚", color: "bg-accent", feePercent: 0 },
+  { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
+  { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
+  { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
+  { id: "ketney", name: "Ketney à Ketney", icon: "💚", color: "bg-accent", feePercent: 0, clearingFee: 0, isInterNetwork: false },
 ];
+
+// High-value threshold for MFA
+const MFA_THRESHOLD = 100000;
 
 const Send = () => {
   const navigate = useNavigate();
@@ -34,6 +41,8 @@ const Send = () => {
   const [pin, setPin] = useState("");
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
   const [error, setError] = useState("");
+  const [contactPickerOpen, setContactPickerOpen] = useState(false);
+  const [mfaOpen, setMfaOpen] = useState(false);
 
   // Pre-fill from URL params (when clicking frequent contacts)
   useEffect(() => {
@@ -49,8 +58,12 @@ const Send = () => {
   }, [searchParams]);
 
   const numericAmount = Number(amount.replace(/\D/g, ""));
-  const fee = selectedNetwork ? Math.ceil(numericAmount * (selectedNetwork.feePercent / 100)) : 0;
+  const baseFee = selectedNetwork ? Math.ceil(numericAmount * (selectedNetwork.feePercent / 100)) : 0;
+  const clearingFee = selectedNetwork?.isInterNetwork ? Math.ceil(numericAmount * (selectedNetwork.clearingFee / 100)) : 0;
+  const fee = baseFee + clearingFee;
   const total = numericAmount + fee;
+
+  const isHighValue = numericAmount >= MFA_THRESHOLD;
 
   const isPhoneValid = recipient.replace(/\D/g, "").length >= 10;
   const isAmountValid = numericAmount >= 500 && total <= balance;
@@ -117,7 +130,21 @@ const Send = () => {
   };
 
   const handleConfirm = () => {
+    if (isHighValue) {
+      setMfaOpen(true);
+    } else {
+      setStep("pin");
+    }
+  };
+
+  const handleMFASuccess = () => {
+    setMfaOpen(false);
     setStep("pin");
+  };
+
+  const handleContactSelect = (contact: { name: string; phone: string }) => {
+    setRecipient(contact.phone);
+    setRecipientName(contact.name);
   };
 
   const handlePinInput = (digit: string) => {
@@ -234,16 +261,24 @@ const Send = () => {
                   setError("");
                 }}
                 placeholder="089 000 0000"
-                className="input-field text-lg font-medium pr-12"
+                className="input-field text-lg font-medium pr-24"
                 maxLength={15}
               />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2">
-                <QrCode className="w-6 h-6 text-primary" />
-              </button>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+                <button 
+                  onClick={() => setContactPickerOpen(true)}
+                  className="p-2 rounded-full hover:bg-secondary transition-colors"
+                >
+                  <Users className="w-5 h-5 text-primary" />
+                </button>
+                <button className="p-2 rounded-full hover:bg-secondary transition-colors">
+                  <QrCode className="w-5 h-5 text-primary" />
+                </button>
+              </div>
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">
-              Entrez un numéro à 10 chiffres ou scannez un QR code
+              Utilisez le répertoire ou scannez un QR code
             </p>
 
             {!isPhoneValid && recipient.length > 0 && (
@@ -328,19 +363,53 @@ const Send = () => {
                   <span className="text-muted-foreground">Montant</span>
                   <span className="font-medium text-foreground">{formatCurrency(numericAmount)} FC</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    Frais ({selectedNetwork?.feePercent}%)
-                  </span>
-                  <span className={`font-medium ${fee === 0 ? "text-accent" : "text-foreground"}`}>
-                    {fee === 0 ? "Gratuit ✨" : `${formatCurrency(fee)} FC`}
-                  </span>
-                </div>
+                
+                {/* Detailed fee breakdown for inter-network */}
+                {selectedNetwork?.isInterNetwork ? (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Frais de transfert ({selectedNetwork?.feePercent}%)
+                      </span>
+                      <span className="font-medium text-foreground">{formatCurrency(baseFee)} FC</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Frais de compensation inter-réseaux</span>
+                        <Info className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                      <span className="font-medium text-foreground">{formatCurrency(clearingFee)} FC</span>
+                    </div>
+                    <div className="bg-primary-soft rounded-lg p-2 flex items-start gap-2">
+                      <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-foreground">
+                        Transfert Inter-réseaux: Inclut les frais de clearing pour la compensation entre KETNEY et {selectedNetwork?.name}.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Frais ({selectedNetwork?.feePercent}%)
+                    </span>
+                    <span className="font-medium text-accent">Gratuit ✨</span>
+                  </div>
+                )}
+                
                 <div className="h-px bg-border" />
                 <div className="flex justify-between">
                   <span className="font-semibold text-foreground">Total à payer</span>
                   <span className="font-bold text-primary">{formatCurrency(total)} FC</span>
                 </div>
+                
+                {isHighValue && (
+                  <div className="bg-destructive/10 rounded-lg p-2 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-destructive">
+                      Transaction de haute valeur: Authentification MFA requise (Conformité AML/KYC)
+                    </p>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -569,6 +638,22 @@ const Send = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Contact Picker */}
+      <ContactPicker
+        isOpen={contactPickerOpen}
+        onClose={() => setContactPickerOpen(false)}
+        onSelect={handleContactSelect}
+      />
+
+      {/* MFA Overlay for high-value transactions */}
+      <MFAOverlay
+        isOpen={mfaOpen}
+        onClose={() => setMfaOpen(false)}
+        onSuccess={handleMFASuccess}
+        amount={numericAmount}
+        transactionType="Transfert"
+      />
     </div>
   );
 };
