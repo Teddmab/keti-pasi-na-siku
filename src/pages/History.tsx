@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, Search } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import TransactionItem from "@/components/TransactionItem";
 import TransactionReceipt from "@/components/TransactionReceipt";
+import TransactionSkeleton from "@/components/TransactionSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser, Transaction } from "@/context/UserContext";
 
@@ -13,8 +15,17 @@ const History = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
+  const location = useLocation();
   const { transactions } = useUser();
+
+  // Simulate loading when navigating to history
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, [location.key]);
 
   const filteredTransactions = transactions.filter((t) => {
     const matchesFilter = filter === "all" || t.type === filter;
@@ -86,26 +97,30 @@ const History = () => {
 
       {/* Transaction List */}
       <div className={isMobile ? "px-6" : ""}>
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="card-elevated overflow-hidden"
-        >
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((transaction, index) => (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                isLast={index === filteredTransactions.length - 1}
-                onClick={() => handleTransactionClick(transaction)}
-              />
-            ))
-          ) : (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground">Aucune transaction trouvée</p>
-            </div>
-          )}
-        </motion.div>
+        {isLoading ? (
+          <TransactionSkeleton count={5} />
+        ) : (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="card-elevated overflow-hidden"
+          >
+            {filteredTransactions.length > 0 ? (
+              filteredTransactions.map((transaction, index) => (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  isLast={index === filteredTransactions.length - 1}
+                  onClick={() => handleTransactionClick(transaction)}
+                />
+              ))
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-muted-foreground">Aucune transaction trouvée</p>
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Transaction Receipt Modal */}
