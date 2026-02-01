@@ -9,7 +9,10 @@ import {
   Mail, 
   MapPin,
   ChevronRight,
-  Loader2
+  Sparkles,
+  Headphones,
+  Clock,
+  CheckCheck
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -19,6 +22,7 @@ interface Message {
   type: "user" | "bot" | "agent";
   content: string;
   timestamp: Date;
+  status?: "sent" | "delivered" | "read";
 }
 
 interface FAQ {
@@ -49,33 +53,102 @@ const faqs: FAQ[] = [
   }
 ];
 
-const aiResponses: Record<string, string> = {
-  "bonjour": "Bonjour ! 👋 Je suis l'assistant KETNEY. Comment puis-je vous aider aujourd'hui ?",
-  "hello": "Bonjour ! 👋 Je suis l'assistant KETNEY. Comment puis-je vous aider aujourd'hui ?",
-  "salut": "Salut ! 👋 Je suis là pour vous aider. Que puis-je faire pour vous ?",
-  "solde": "Pour vérifier votre solde, regardez en haut de l'écran d'accueil. Vous pouvez masquer/afficher le montant en appuyant sur l'icône œil 👁️",
-  "frais": "Les frais de transfert sont de 1% pour les envois vers Airtel, Orange et Vodacom. Les transferts Ketney à Ketney sont GRATUITS ! 🎉",
-  "agent": "Pour trouver un agent proche, allez dans l'onglet 'Agents'. Vous verrez une carte avec tous les agents disponibles autour de vous.",
-  "pin": "Pour changer votre code PIN, allez dans Paramètres > Sécurité > Changer le code PIN. Vous devrez entrer votre ancien code puis le nouveau.",
-  "aide": "Je peux vous aider avec : envoi d'argent, frais, agents, sécurité, et plus. Posez-moi votre question !",
-  "merci": "Je vous en prie ! 😊 N'hésitez pas si vous avez d'autres questions.",
-  "default": "Je comprends votre question. Pour une assistance plus personnalisée, je vous recommande de contacter notre équipe support via le chat en direct ou par téléphone au +243 999 KETNEY."
+// Enhanced AI responses with context awareness
+const getAIResponse = (input: string, messageHistory: Message[]): string => {
+  const lowerInput = input.toLowerCase();
+  
+  // Greeting detection
+  if (/^(bonjour|salut|hello|hi|hey|bonsoir)/i.test(lowerInput)) {
+    return "Bonjour ! 👋 Je suis votre assistant virtuel KETNEY. Je peux vous aider avec :\n\n• Envoi et réception d'argent\n• Frais de transfert\n• Trouver un agent\n• Sécurité du compte\n• Problèmes techniques\n\nQue puis-je faire pour vous ?";
+  }
+  
+  // Balance related
+  if (lowerInput.includes("solde") || lowerInput.includes("balance") || lowerInput.includes("argent")) {
+    return "💰 **Consulter votre solde**\n\nVotre solde est affiché en haut de l'écran d'accueil. Vous pouvez :\n\n1. Appuyer sur l'icône 👁️ pour masquer/afficher le montant\n2. Activer le Mode Bas Débit pour voir le solde en format texte\n\nVotre solde actuel est visible uniquement par vous.";
+  }
+  
+  // Fees related
+  if (lowerInput.includes("frais") || lowerInput.includes("commission") || lowerInput.includes("coût")) {
+    return "💸 **Frais de transfert KETNEY**\n\n✅ **Gratuit** : Ketney → Ketney\n📱 **1%** : Ketney → Airtel, Orange, Vodacom\n\n*Exemple : Pour 10,000 FC vers Orange, les frais sont de 100 FC*\n\nLes frais de Cash Out dépendent du montant et de l'agent.";
+  }
+  
+  // Agent related
+  if (lowerInput.includes("agent") || lowerInput.includes("retrait") || lowerInput.includes("dépôt") || lowerInput.includes("cash")) {
+    return "📍 **Trouver un agent KETNEY**\n\n1. Allez dans l'onglet **Agents** en bas de l'écran\n2. La carte affiche tous les agents près de vous\n3. Appuyez sur un agent pour voir ses horaires\n\n💡 Astuce : Les agents avec le badge ⭐ ont les meilleures évaluations !";
+  }
+  
+  // PIN/Security related
+  if (lowerInput.includes("pin") || lowerInput.includes("sécurité") || lowerInput.includes("mot de passe") || lowerInput.includes("biométrie")) {
+    return "🔒 **Sécurité de votre compte**\n\n**Changer le code PIN :**\nParamètres → Sécurité → Changer le code PIN\n\n**Activer la biométrie :**\nParamètres → Sécurité → Biométrie\n\n⚠️ **Important** : Ne partagez JAMAIS votre code PIN !";
+  }
+  
+  // Transfer issues
+  if (lowerInput.includes("problème") || lowerInput.includes("erreur") || lowerInput.includes("échoué") || lowerInput.includes("attente")) {
+    return "🔧 **Résoudre un problème de transfert**\n\nSi votre transfert a échoué :\n\n1. Vérifiez votre connexion internet\n2. Assurez-vous que le numéro est correct\n3. Vérifiez votre solde disponible\n\nSi le problème persiste après 5 minutes, contactez notre support via **Chat Live** pour une assistance personnalisée.";
+  }
+  
+  // Virtual cards
+  if (lowerInput.includes("carte") || lowerInput.includes("virtuelle") || lowerInput.includes("visa") || lowerInput.includes("mastercard")) {
+    return "💳 **Cartes Virtuelles KETNEY**\n\nVous pouvez créer une carte virtuelle pour vos achats en ligne :\n\n1. Allez dans **Mes Cartes** dans le menu\n2. Appuyez sur **Générer une carte**\n3. Choisissez VISA ou Mastercard\n\nLa carte est liée à votre solde KETNEY. Touchez la carte pour voir le CVV !";
+  }
+  
+  // Thanks
+  if (lowerInput.includes("merci") || lowerInput.includes("thank")) {
+    return "Je vous en prie ! 😊\n\nN'hésitez pas à revenir si vous avez d'autres questions. Je suis disponible 24h/24 pour vous aider !\n\n⭐ Votre satisfaction est notre priorité.";
+  }
+  
+  // Goodbye
+  if (lowerInput.includes("au revoir") || lowerInput.includes("bye") || lowerInput.includes("à bientôt")) {
+    return "Au revoir ! 👋\n\nMerci d'avoir utilisé l'assistant KETNEY. Passez une excellente journée !\n\n🇨🇩 *KETNEY - Votre argent, simplifié*";
+  }
+  
+  // Default intelligent response
+  const contextAware = messageHistory.length > 2 
+    ? "\n\nJe vois que nous discutons depuis un moment. " 
+    : "";
+  
+  return `Je comprends votre question concernant "${input.slice(0, 30)}${input.length > 30 ? '...' : ''}".${contextAware}\n\nPour une réponse plus précise, vous pouvez :\n\n• Reformuler votre question\n• Utiliser les boutons rapides ci-dessous\n• Contacter un agent via **Chat Live**\n\nJe suis là pour vous aider ! 🤝`;
 };
+
+// Mock agent responses for live chat
+const agentResponses = [
+  "Bonjour ! Je suis Marie du support KETNEY. Je vois votre demande et je consulte votre dossier...",
+  "Merci pour ces informations. Pouvez-vous me donner le numéro de référence de la transaction ?",
+  "Je comprends votre préoccupation. Laissez-moi vérifier cela dans notre système...",
+  "D'après nos informations, je vois que la transaction a bien été effectuée. Le délai de traitement est de 5-10 minutes.",
+  "Est-ce que cela répond à votre question ? N'hésitez pas si vous avez besoin d'autres informations.",
+  "Je reste à votre disposition. Y a-t-il autre chose que je puisse faire pour vous ?",
+];
 
 const Support = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<"faq" | "chat" | "ai">("faq");
-  const [messages, setMessages] = useState<Message[]>([
+  
+  // Separate message states for AI and Live Chat
+  const [aiMessages, setAiMessages] = useState<Message[]>([
     {
-      id: "welcome",
+      id: "ai-welcome",
       type: "bot",
-      content: "Bonjour ! 👋 Je suis l'assistant virtuel KETNEY. Comment puis-je vous aider aujourd'hui ?",
+      content: "Bonjour ! 👋 Je suis l'assistant virtuel KETNEY, propulsé par l'intelligence artificielle.\n\nJe peux répondre à vos questions sur :\n• Transferts d'argent\n• Frais et commissions\n• Agents et points de service\n• Sécurité du compte\n\nComment puis-je vous aider aujourd'hui ?",
       timestamp: new Date()
     }
   ]);
+  
+  const [chatMessages, setChatMessages] = useState<Message[]>([
+    {
+      id: "chat-welcome",
+      type: "agent",
+      content: "Bienvenue sur le support KETNEY ! 👋\n\nUn agent va vous répondre dans quelques instants. En attendant, décrivez votre problème pour nous aider à vous assister plus rapidement.",
+      timestamp: new Date(),
+      status: "read"
+    }
+  ]);
+  
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [agentStatus, setAgentStatus] = useState<"online" | "typing" | "away">("online");
+  const [agentResponseIndex, setAgentResponseIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -85,19 +158,7 @@ const Support = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
-
-  const getAIResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    
-    for (const [key, response] of Object.entries(aiResponses)) {
-      if (lowerInput.includes(key)) {
-        return response;
-      }
-    }
-    
-    return aiResponses.default;
-  };
+  }, [aiMessages, chatMessages, isTyping]);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -106,27 +167,63 @@ const Support = () => {
       id: `user-${Date.now()}`,
       type: "user",
       content: inputValue,
-      timestamp: new Date()
+      timestamp: new Date(),
+      status: "sent"
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue("");
-    setIsTyping(true);
+    if (activeTab === "ai") {
+      setAiMessages(prev => [...prev, userMessage]);
+      setInputValue("");
+      setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: `bot-${Date.now()}`,
-        type: activeTab === "ai" ? "bot" : "agent",
-        content: activeTab === "ai" 
-          ? getAIResponse(userMessage.content)
-          : "Un agent va vous répondre sous peu. Temps d'attente estimé : 2-3 minutes.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1000 + Math.random() * 1000);
+      // Simulate AI thinking
+      const thinkingTime = 800 + Math.random() * 1200;
+      setTimeout(() => {
+        const botResponse: Message = {
+          id: `bot-${Date.now()}`,
+          type: "bot",
+          content: getAIResponse(userMessage.content, aiMessages),
+          timestamp: new Date()
+        };
+        setAiMessages(prev => [...prev, botResponse]);
+        setIsTyping(false);
+      }, thinkingTime);
+    } else if (activeTab === "chat") {
+      setChatMessages(prev => [...prev, { ...userMessage, status: "delivered" }]);
+      setInputValue("");
+      
+      // Simulate message being read
+      setTimeout(() => {
+        setChatMessages(prev => 
+          prev.map(m => m.id === userMessage.id ? { ...m, status: "read" as const } : m)
+        );
+      }, 1000);
+      
+      // Simulate agent typing
+      setTimeout(() => {
+        setAgentStatus("typing");
+        setIsTyping(true);
+      }, 1500);
+      
+      // Simulate agent response
+      const responseTime = 2500 + Math.random() * 2000;
+      setTimeout(() => {
+        const agentMessage: Message = {
+          id: `agent-${Date.now()}`,
+          type: "agent",
+          content: agentResponses[agentResponseIndex % agentResponses.length],
+          timestamp: new Date(),
+          status: "read"
+        };
+        setChatMessages(prev => [...prev, agentMessage]);
+        setAgentResponseIndex(prev => prev + 1);
+        setIsTyping(false);
+        setAgentStatus("online");
+      }, responseTime);
+    }
   };
+
+  const currentMessages = activeTab === "ai" ? aiMessages : chatMessages;
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-top">
@@ -145,8 +242,8 @@ const Support = () => {
       <div className="px-6 py-4 flex gap-2">
         {[
           { id: "faq", icon: MessageCircle, label: "FAQ" },
-          { id: "ai", icon: Bot, label: "Assistant IA" },
-          { id: "chat", icon: MessageCircle, label: "Chat Live" },
+          { id: "ai", icon: Sparkles, label: "Assistant IA" },
+          { id: "chat", icon: Headphones, label: "Chat Live" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -253,21 +350,34 @@ const Support = () => {
               exit={{ opacity: 0, x: 20 }}
               className="h-full flex flex-col"
             >
+              {/* AI Header */}
+              <div className="px-6 py-3 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Assistant KETNEY</p>
+                    <p className="text-xs text-muted-foreground">Propulsé par IA • Disponible 24/7</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                {messages.map((message) => (
+                {aiMessages.map((message) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                       message.type === "user"
                         ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-secondary text-foreground rounded-bl-md"
                     }`}>
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm whitespace-pre-line">{message.content}</p>
                       <p className={`text-xs mt-1 ${
                         message.type === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
                       }`}>
@@ -276,17 +386,21 @@ const Support = () => {
                     </div>
                   </motion.div>
                 ))}
-                {isTyping && (
+                {isTyping && activeTab === "ai" && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="flex justify-start"
                   >
                     <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                        <span className="text-sm text-muted-foreground">Réflexion en cours</span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -295,17 +409,27 @@ const Support = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="px-6 py-2 flex gap-2 overflow-x-auto">
-                {["Frais", "Agent", "PIN", "Solde"].map((action) => (
+              <div className="px-6 py-2 flex gap-2 overflow-x-auto scrollbar-hide">
+                {[
+                  { label: "💸 Frais", query: "Quels sont les frais de transfert ?" },
+                  { label: "📍 Agent", query: "Comment trouver un agent ?" },
+                  { label: "🔒 Sécurité", query: "Comment sécuriser mon compte ?" },
+                  { label: "💳 Cartes", query: "Comment créer une carte virtuelle ?" },
+                ].map((action) => (
                   <button
-                    key={action}
+                    key={action.label}
                     onClick={() => {
-                      setInputValue(action);
-                      setTimeout(() => handleSendMessage(), 100);
+                      setInputValue(action.query);
+                      setTimeout(() => {
+                        const input = document.querySelector('input[placeholder="Posez votre question..."]') as HTMLInputElement;
+                        if (input) {
+                          input.focus();
+                        }
+                      }, 100);
                     }}
-                    className="px-4 py-2 bg-secondary rounded-full text-sm font-medium text-foreground whitespace-nowrap hover:bg-secondary/80"
+                    className="px-4 py-2 bg-secondary rounded-full text-sm font-medium text-foreground whitespace-nowrap hover:bg-secondary/80 transition-colors"
                   >
-                    {action}
+                    {action.label}
                   </button>
                 ))}
               </div>
@@ -323,8 +447,8 @@ const Support = () => {
                   />
                   <button
                     onClick={handleSendMessage}
-                    disabled={!inputValue.trim()}
-                    className="w-12 h-12 rounded-full bg-primary flex items-center justify-center disabled:opacity-50"
+                    disabled={!inputValue.trim() || isTyping}
+                    className="w-12 h-12 rounded-full bg-primary flex items-center justify-center disabled:opacity-50 transition-opacity"
                   >
                     <Send className="w-5 h-5 text-primary-foreground" />
                   </button>
@@ -347,28 +471,100 @@ const Support = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                      <span className="text-lg font-bold text-accent-foreground">SK</span>
+                      <span className="text-lg font-bold text-accent-foreground">MK</span>
                     </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                    <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background ${
+                      agentStatus === "online" ? "bg-green-500" : 
+                      agentStatus === "typing" ? "bg-yellow-500" : "bg-gray-400"
+                    }`} />
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">Support KETNEY</p>
-                    <p className="text-sm text-accent">En ligne • Répond en ~3 min</p>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Marie K. - Support KETNEY</p>
+                    <div className="flex items-center gap-2">
+                      {agentStatus === "typing" ? (
+                        <span className="text-sm text-primary">En train d'écrire...</span>
+                      ) : (
+                        <>
+                          <span className="text-sm text-accent">En ligne</span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> ~3 min
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                <div className="flex justify-start">
-                  <div className="max-w-[80%] bg-secondary rounded-2xl rounded-bl-md px-4 py-3">
-                    <p className="text-sm text-foreground">
-                      Bonjour ! Un agent va vous répondre sous peu. En attendant, pouvez-vous décrire votre problème ?
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">Support • Maintenant</p>
-                  </div>
-                </div>
+                {chatMessages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                      message.type === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
+                        : "bg-secondary text-foreground rounded-bl-md"
+                    }`}>
+                      <p className="text-sm whitespace-pre-line">{message.content}</p>
+                      <div className={`flex items-center gap-1 mt-1 ${
+                        message.type === "user" ? "justify-end" : ""
+                      }`}>
+                        <p className={`text-xs ${
+                          message.type === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
+                        }`}>
+                          {message.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        {message.type === "user" && message.status && (
+                          <CheckCheck className={`w-4 h-4 ${
+                            message.status === "read" ? "text-accent" : "text-primary-foreground/50"
+                          }`} />
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {isTyping && activeTab === "chat" && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Marie écrit</span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
                 <div ref={messagesEndRef} />
+              </div>
+
+              {/* Suggested Messages */}
+              <div className="px-6 py-2 flex gap-2 overflow-x-auto scrollbar-hide">
+                {[
+                  "J'ai un problème avec un transfert",
+                  "Mon argent n'est pas arrivé",
+                  "Question sur les frais",
+                ].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => setInputValue(suggestion)}
+                    className="px-4 py-2 bg-secondary rounded-full text-sm font-medium text-foreground whitespace-nowrap hover:bg-secondary/80 transition-colors"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
               </div>
 
               {/* Input */}
@@ -384,8 +580,8 @@ const Support = () => {
                   />
                   <button
                     onClick={handleSendMessage}
-                    disabled={!inputValue.trim()}
-                    className="w-12 h-12 rounded-full bg-primary flex items-center justify-center disabled:opacity-50"
+                    disabled={!inputValue.trim() || isTyping}
+                    className="w-12 h-12 rounded-full bg-primary flex items-center justify-center disabled:opacity-50 transition-opacity"
                   >
                     <Send className="w-5 h-5 text-primary-foreground" />
                   </button>
