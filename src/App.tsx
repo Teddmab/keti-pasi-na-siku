@@ -17,6 +17,7 @@ import CashIn from "./pages/CashIn";
 import CashOut from "./pages/CashOut";
 import History from "./pages/History";
 import Agents from "./pages/Agents";
+import Merchants from "./pages/Merchants";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
@@ -45,6 +46,7 @@ const AppRoutes = () => {
       <Route path="/cash-out" element={<AppLayout><CashOut /></AppLayout>} />
       <Route path="/history" element={<AppLayout><History /></AppLayout>} />
       <Route path="/agents" element={<AppLayout><Agents /></AppLayout>} />
+      <Route path="/merchants" element={<AppLayout><Merchants /></AppLayout>} />
       <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
       <Route path="/support" element={<AppLayout><Support /></AppLayout>} />
       <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />

@@ -10,7 +10,8 @@ import {
   Users,
   Eye,
   EyeOff,
-  Menu
+  Menu,
+  Store
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TransactionItem from "@/components/TransactionItem";
@@ -218,6 +219,18 @@ const Home = () => {
             </motion.div>
           )}
         </div>
+
+        {/* Floating Merchants Button */}
+        <motion.button
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+          onClick={() => navigate("/merchants")}
+          className="fixed bottom-24 right-5 w-14 h-14 bg-accent rounded-2xl shadow-lg flex items-center justify-center z-30"
+          whileTap={{ scale: 0.9 }}
+        >
+          <Store className="w-6 h-6 text-accent-foreground" />
+        </motion.button>
 
         {/* Transaction Receipt Modal */}
         <TransactionReceipt
