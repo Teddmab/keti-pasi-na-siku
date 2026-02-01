@@ -22,29 +22,29 @@ const BottomNav = ({ active }: BottomNavProps) => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom z-40">
-      <div className="flex items-center justify-around py-2 max-w-md mx-auto">
+      <div className="flex items-center justify-around py-2 px-1 max-w-md mx-auto">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => navigate(item.path)}
-            className={`nav-item relative ${active === item.id ? "active" : ""} ${item.isCenter ? "-mt-6" : ""}`}
+            className={`nav-item relative flex-1 ${active === item.id ? "active" : ""} ${item.isCenter ? "-mt-6" : ""}`}
           >
             {item.isCenter ? (
               <motion.div
                 whileTap={{ scale: 0.9 }}
-                className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg mx-auto"
               >
-                <item.icon className="w-6 h-6 text-primary-foreground" />
+                <item.icon className="w-5 h-5 text-primary-foreground" />
               </motion.div>
             ) : (
               <>
                 <div className="relative">
-                  <item.icon className={`w-6 h-6 transition-colors ${active === item.id ? "text-primary" : ""}`} />
+                  <item.icon className={`w-5 h-5 transition-colors mx-auto ${active === item.id ? "text-primary" : ""}`} />
                   {active === item.id && (
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
                   )}
                 </div>
-                <span className={`text-xs font-medium ${active === item.id ? "text-primary" : ""}`}>
+                <span className={`text-[10px] font-medium mt-0.5 ${active === item.id ? "text-primary" : ""}`}>
                   {item.label}
                 </span>
               </>
