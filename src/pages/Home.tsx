@@ -235,21 +235,20 @@ const Home = () => {
   return (
     <div className="py-2 flex gap-6">
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-muted-foreground">Bonjour 👋</p>
+            <p className="text-muted-foreground text-sm">Bonjour 👋</p>
             <h1 className="text-2xl font-bold text-foreground">Jean-Pierre Kabongo</h1>
           </div>
           <div className="flex items-center gap-3">
-            {/* Exchange Rate Badge */}
             <ExchangeRateWidget rate={exchangeRate} previousRate={2830} compact />
             <button 
               onClick={() => navigate("/notifications")}
-              className="w-12 h-12 rounded-full bg-card shadow-card flex items-center justify-center relative"
+              className="w-11 h-11 rounded-full bg-card shadow-card flex items-center justify-center relative hover:bg-secondary transition-colors"
             >
-              <Bell className="w-6 h-6 text-foreground" />
+              <Bell className="w-5 h-5 text-foreground" />
               {unreadNotifications > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full text-xs text-primary-foreground flex items-center justify-center font-bold">
                   {unreadNotifications}
@@ -259,23 +258,23 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Balance Card - Larger on Desktop */}
+        {/* Balance + Contacts Grid */}
+        <div className="grid grid-cols-12 gap-4 mb-6">
+          {/* Balance Card */}
           {isLoading ? (
-            <div className="lg:col-span-2">
+            <div className="col-span-8">
               <BalanceCardSkeleton />
             </div>
           ) : (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="lg:col-span-2 balance-card"
+              className="col-span-8 balance-card h-[140px] flex items-center"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between w-full">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Wallet className="w-5 h-5 opacity-80" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <Wallet className="w-4 h-4 opacity-80" />
                     <span className="text-sm opacity-80">Mon solde disponible</span>
                     <button 
                       onClick={toggleBalanceVisibility}
@@ -291,34 +290,34 @@ const Home = () => {
                   <div className="flex items-baseline gap-2">
                     {balanceVisible ? (
                       <>
-                        <span className="text-5xl font-extrabold amount-display">
+                        <span className="text-4xl font-extrabold amount-display">
                           {formatCurrency(balance)}
                         </span>
-                        <span className="text-xl font-medium opacity-80">FC</span>
+                        <span className="text-lg font-medium opacity-80">FC</span>
                       </>
                     ) : (
-                      <span className="text-5xl font-extrabold">••••••••</span>
+                      <span className="text-4xl font-extrabold">••••••••</span>
                     )}
                   </div>
                 </div>
-                <div className="hidden lg:flex items-center gap-2 bg-white/20 rounded-2xl px-4 py-2">
-                  <TrendingUp className="w-5 h-5" />
-                  <span className="font-medium">+12% ce mois</span>
+                <div className="flex items-center gap-2 bg-white/20 rounded-2xl px-4 py-2">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="font-medium text-sm">+12% ce mois</span>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Quick Stats */}
+          {/* Contacts Card */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="card-elevated p-6"
+            className="col-span-4 card-elevated p-5 h-[140px] flex flex-col justify-center"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="font-medium text-foreground">Contacts fréquents</span>
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="font-medium text-foreground text-sm">Contacts fréquents</span>
             </div>
             <div className="flex -space-x-2">
               {[
@@ -330,34 +329,34 @@ const Home = () => {
                 <button
                   key={i}
                   onClick={() => navigate(`/send?phone=${contact.phone}&name=${encodeURIComponent(contact.name)}`)}
-                  className="w-10 h-10 rounded-full bg-secondary border-2 border-card flex items-center justify-center text-xs font-bold text-foreground hover:scale-110 hover:z-10 transition-transform"
+                  className="w-9 h-9 rounded-full bg-secondary border-2 border-card flex items-center justify-center text-xs font-bold text-foreground hover:scale-110 hover:z-10 transition-transform"
                   title={contact.name}
                 >
                   {contact.initials}
                 </button>
               ))}
-              <div className="w-10 h-10 rounded-full bg-primary border-2 border-card flex items-center justify-center text-xs font-bold text-primary-foreground">
+              <div className="w-9 h-9 rounded-full bg-primary border-2 border-card flex items-center justify-center text-xs font-bold text-primary-foreground">
                 +5
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Action Buttons - Horizontal on Desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Action Buttons - 4 columns */}
+        <div className="grid grid-cols-4 gap-4 mb-6">
           <motion.button
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
             onClick={() => navigate("/send")}
-            className="card-elevated action-card p-5 flex items-center gap-4"
+            className="card-elevated action-card p-4 flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
-              <ArrowUpRight className="w-7 h-7 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+              <ArrowUpRight className="w-6 h-6 text-primary-foreground" />
             </div>
-            <div className="text-left">
-              <span className="font-semibold text-foreground block">Envoyer</span>
-              <span className="text-sm text-muted-foreground">Transfert rapide</span>
+            <div className="text-left min-w-0">
+              <span className="font-semibold text-foreground block text-sm">Envoyer</span>
+              <span className="text-xs text-muted-foreground">Transfert rapide</span>
             </div>
           </motion.button>
 
@@ -366,14 +365,14 @@ const Home = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.15 }}
             onClick={() => navigate("/receive")}
-            className="card-elevated action-card p-5 flex items-center gap-4"
+            className="card-elevated action-card p-4 flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center">
-              <ArrowDownLeft className="w-7 h-7 text-accent-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
+              <ArrowDownLeft className="w-6 h-6 text-accent-foreground" />
             </div>
-            <div className="text-left">
-              <span className="font-semibold text-foreground block">Recevoir</span>
-              <span className="text-sm text-muted-foreground">Via QR code</span>
+            <div className="text-left min-w-0">
+              <span className="font-semibold text-foreground block text-sm">Recevoir</span>
+              <span className="text-xs text-muted-foreground">Via QR code</span>
             </div>
           </motion.button>
 
@@ -382,14 +381,14 @@ const Home = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
             onClick={() => navigate("/cash-in")}
-            className="card-elevated action-card p-5 flex items-center gap-4"
+            className="card-elevated action-card p-4 flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
-              <QrCode className="w-7 h-7 text-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+              <QrCode className="w-6 h-6 text-foreground" />
             </div>
-            <div className="text-left">
-              <span className="font-semibold text-foreground block">Cash In</span>
-              <span className="text-sm text-muted-foreground">Dépôt d'argent</span>
+            <div className="text-left min-w-0">
+              <span className="font-semibold text-foreground block text-sm">Cash In</span>
+              <span className="text-xs text-muted-foreground">Dépôt d'argent</span>
             </div>
           </motion.button>
 
@@ -398,14 +397,14 @@ const Home = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.25 }}
             onClick={() => navigate("/cash-out")}
-            className="card-elevated action-card p-5 flex items-center gap-4"
+            className="card-elevated action-card p-4 flex items-center gap-3"
           >
-            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
-              <Wallet className="w-7 h-7 text-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+              <Wallet className="w-6 h-6 text-foreground" />
             </div>
-            <div className="text-left">
-              <span className="font-semibold text-foreground block">Cash Out</span>
-              <span className="text-sm text-muted-foreground">Retrait d'argent</span>
+            <div className="text-left min-w-0">
+              <span className="font-semibold text-foreground block text-sm">Cash Out</span>
+              <span className="text-xs text-muted-foreground">Retrait d'argent</span>
             </div>
           </motion.button>
         </div>
@@ -413,10 +412,10 @@ const Home = () => {
         {/* Recent Transactions */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-foreground">Transactions récentes</h2>
+            <h2 className="text-lg font-bold text-foreground">Transactions récentes</h2>
             <button 
               onClick={() => navigate("/history")}
-              className="text-primary font-medium hover:underline"
+              className="text-primary font-medium text-sm hover:underline"
             >
               Voir tout l'historique →
             </button>
@@ -445,11 +444,8 @@ const Home = () => {
       </div>
 
       {/* Right Sidebar - Desktop Only */}
-      <aside className="hidden xl:block w-80 space-y-6">
-        {/* Exchange Rate Widget */}
+      <aside className="hidden xl:block w-72 space-y-4 flex-shrink-0">
         <ExchangeRateWidget rate={exchangeRate} previousRate={2830} />
-        
-        {/* Savings Goal Widget */}
         <SavingsWidget goal={savingsGoal} current={currentSavings} />
       </aside>
 
