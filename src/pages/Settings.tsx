@@ -50,7 +50,7 @@ interface SettingItem {
 
 type KYCStep = "intro" | "document" | "uploading" | "verifying" | "success";
 
-const languages: { code: Language; name: string; flag: string }[] = [
+const languageOptions: { code: Language; name: string; flag: string }[] = [
   { code: "fr", name: "Français", flag: "🇫🇷" },
   { code: "en", name: "English", flag: "🇬🇧" },
 ];
@@ -82,11 +82,11 @@ const Settings = () => {
   const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
 
   const getLanguageName = (code: Language) => {
-    return languages.find(l => l.code === code)?.name || "Français";
+    return languageOptions.find(l => l.code === code)?.name || "Français";
   };
 
   const getLanguageFlag = (code: Language) => {
-    return languages.find(l => l.code === code)?.flag || "🇫🇷";
+    return languageOptions.find(l => l.code === code)?.flag || "🇫🇷";
   };
 
   const handlePinInput = (digit: string, type: "current" | "new" | "confirm") => {
@@ -325,7 +325,7 @@ const Settings = () => {
   // Language Modal Content
   const LanguageModalContent = () => (
     <div className="py-2">
-      {languages.map((lang) => (
+      {languageOptions.map((lang) => (
         <button
           key={lang.code}
           onClick={() => handleLanguageSelect(lang.code)}
