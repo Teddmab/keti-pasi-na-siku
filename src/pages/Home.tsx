@@ -8,52 +8,36 @@ import {
   Bell,
   Scan,
   TrendingUp,
-  Users
+  Users,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TransactionItem from "@/components/TransactionItem";
+import TransactionReceipt from "@/components/TransactionReceipt";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUser, Transaction } from "@/context/UserContext";
 
 const Home = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [balance] = useState(72000);
+  const { balance, balanceVisible, toggleBalanceVisibility, transactions, notifications } = useUser();
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [receiptOpen, setReceiptOpen] = useState(false);
 
-  const recentTransactions = [
-    {
-      id: "1",
-      type: "sent" as const,
-      recipient: "Sarah M.",
-      network: "Orange" as const,
-      amount: 15000,
-      status: "completed" as const,
-      date: "Aujourd'hui, 14:30",
-    },
-    {
-      id: "2",
-      type: "received" as const,
-      recipient: "Jean K.",
-      network: "Airtel" as const,
-      amount: 20000,
-      status: "completed" as const,
-      date: "Aujourd'hui, 10:15",
-    },
-    {
-      id: "3",
-      type: "cashin" as const,
-      recipient: "Agent Gombe",
-      network: "Vodacom" as const,
-      amount: 50000,
-      status: "completed" as const,
-      date: "Hier, 16:45",
-    },
-  ];
+  const recentTransactions = transactions.slice(0, 3);
+  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("fr-CD", {
       style: "decimal",
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setReceiptOpen(true);
   };
 
   // Mobile Layout
@@ -67,11 +51,16 @@ const Home = () => {
               <p className="text-muted-foreground text-sm">Bonjour 👋</p>
               <h1 className="text-xl font-bold text-foreground">Jean-Pierre</h1>
             </div>
-            <button className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center relative">
+            <button 
+              onClick={() => navigate("/notifications")}
+              className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center relative"
+            >
               <Bell className="w-5 h-5 text-foreground" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
-                2
-              </span>
+              {unreadNotifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
+                  {unreadNotifications}
+                </span>
+              )}
             </button>
           </div>
 
@@ -81,15 +70,33 @@ const Home = () => {
             animate={{ y: 0, opacity: 1 }}
             className="balance-card"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <Wallet className="w-5 h-5 opacity-80" />
-              <span className="text-sm opacity-80">Mon solde</span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 opacity-80" />
+                <span className="text-sm opacity-80">Mon solde</span>
+              </div>
+              <button 
+                onClick={toggleBalanceVisibility}
+                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                {balanceVisible ? (
+                  <Eye className="w-5 h-5 opacity-80" />
+                ) : (
+                  <EyeOff className="w-5 h-5 opacity-80" />
+                )}
+              </button>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold amount-display">
-                {formatCurrency(balance)}
-              </span>
-              <span className="text-lg font-medium opacity-80">CDF</span>
+              {balanceVisible ? (
+                <>
+                  <span className="text-4xl font-extrabold amount-display">
+                    {formatCurrency(balance)}
+                  </span>
+                  <span className="text-lg font-medium opacity-80">FC</span>
+                </>
+              ) : (
+                <span className="text-4xl font-extrabold">••••••</span>
+              )}
             </div>
           </motion.div>
         </div>
@@ -160,8 +167,9 @@ const Home = () => {
             {recentTransactions.map((transaction, index) => (
               <TransactionItem
                 key={transaction.id}
-                {...transaction}
+                transaction={transaction}
                 isLast={index === recentTransactions.length - 1}
+                onClick={() => handleTransactionClick(transaction)}
               />
             ))}
           </motion.div>
@@ -176,6 +184,13 @@ const Home = () => {
         >
           <Scan className="w-6 h-6" />
         </motion.button>
+
+        {/* Transaction Receipt Modal */}
+        <TransactionReceipt
+          transaction={selectedTransaction}
+          isOpen={receiptOpen}
+          onClose={() => setReceiptOpen(false)}
+        />
       </div>
     );
   }
@@ -189,11 +204,16 @@ const Home = () => {
           <p className="text-muted-foreground">Bonjour 👋</p>
           <h1 className="text-2xl font-bold text-foreground">Jean-Pierre Kabongo</h1>
         </div>
-        <button className="w-12 h-12 rounded-full bg-card shadow-card flex items-center justify-center relative">
+        <button 
+          onClick={() => navigate("/notifications")}
+          className="w-12 h-12 rounded-full bg-card shadow-card flex items-center justify-center relative"
+        >
           <Bell className="w-6 h-6 text-foreground" />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full text-xs text-primary-foreground flex items-center justify-center font-bold">
-            2
-          </span>
+          {unreadNotifications > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full text-xs text-primary-foreground flex items-center justify-center font-bold">
+              {unreadNotifications}
+            </span>
+          )}
         </button>
       </div>
 
@@ -210,12 +230,28 @@ const Home = () => {
               <div className="flex items-center gap-2 mb-2">
                 <Wallet className="w-5 h-5 opacity-80" />
                 <span className="text-sm opacity-80">Mon solde disponible</span>
+                <button 
+                  onClick={toggleBalanceVisibility}
+                  className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  {balanceVisible ? (
+                    <Eye className="w-4 h-4 opacity-80" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 opacity-80" />
+                  )}
+                </button>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-extrabold amount-display">
-                  {formatCurrency(balance)}
-                </span>
-                <span className="text-xl font-medium opacity-80">CDF</span>
+                {balanceVisible ? (
+                  <>
+                    <span className="text-5xl font-extrabold amount-display">
+                      {formatCurrency(balance)}
+                    </span>
+                    <span className="text-xl font-medium opacity-80">FC</span>
+                  </>
+                ) : (
+                  <span className="text-5xl font-extrabold">••••••••</span>
+                )}
               </div>
             </div>
             <div className="hidden lg:flex items-center gap-2 bg-white/20 rounded-2xl px-4 py-2">
@@ -338,12 +374,20 @@ const Home = () => {
           {recentTransactions.map((transaction, index) => (
             <TransactionItem
               key={transaction.id}
-              {...transaction}
+              transaction={transaction}
               isLast={index === recentTransactions.length - 1}
+              onClick={() => handleTransactionClick(transaction)}
             />
           ))}
         </motion.div>
       </div>
+
+      {/* Transaction Receipt Modal */}
+      <TransactionReceipt
+        transaction={selectedTransaction}
+        isOpen={receiptOpen}
+        onClose={() => setReceiptOpen(false)}
+      />
     </div>
   );
 };

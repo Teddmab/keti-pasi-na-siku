@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, QrCode, Check, Fingerprint, AlertCircle } from "lucide-react";
+import { ArrowLeft, QrCode, Check, Fingerprint, AlertCircle, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUser, Transaction } from "@/context/UserContext";
+import confetti from "canvas-confetti";
 
 type SendStep = "network" | "recipient" | "amount" | "confirm" | "pin" | "success";
 
@@ -10,24 +12,34 @@ interface Network {
   name: string;
   icon: string;
   color: string;
+  feePercent: number;
 }
 
 const networks: Network[] = [
-  { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500" },
-  { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary" },
-  { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500" },
+  { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500", feePercent: 1 },
+  { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary", feePercent: 1 },
+  { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500", feePercent: 1 },
+  { id: "ketney", name: "Ketney à Ketney", icon: "💚", color: "bg-accent", feePercent: 0 },
 ];
 
 const Send = () => {
   const navigate = useNavigate();
+  const { balance, sendMoney } = useUser();
   const [step, setStep] = useState<SendStep>("network");
   const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
   const [recipient, setRecipient] = useState("");
+  const [recipientName, setRecipientName] = useState("");
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState("");
+  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
+  const [error, setError] = useState("");
 
-  const fee = Math.ceil(Number(amount) * 0.01);
-  const total = Number(amount) + fee;
+  const numericAmount = Number(amount.replace(/\D/g, ""));
+  const fee = selectedNetwork ? Math.ceil(numericAmount * (selectedNetwork.feePercent / 100)) : 0;
+  const total = numericAmount + fee;
+
+  const isPhoneValid = recipient.replace(/\D/g, "").length >= 10;
+  const isAmountValid = numericAmount >= 500 && total <= balance;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("fr-CD").format(value);
@@ -41,6 +53,7 @@ const Send = () => {
   };
 
   const handleBack = () => {
+    setError("");
     switch (step) {
       case "network":
         navigate("/home");
@@ -68,25 +81,63 @@ const Send = () => {
   };
 
   const handleRecipientSubmit = () => {
-    if (recipient.length >= 9) {
+    if (isPhoneValid) {
+      // Mock name lookup
+      const names = ["Sarah Mbuyi", "Jean Kabongo", "Marie Lukusa", "Patrick Mutombo", "Thérèse Kasongo"];
+      setRecipientName(names[Math.floor(Math.random() * names.length)]);
       setStep("amount");
     }
   };
 
   const handleAmountSubmit = () => {
-    if (Number(amount) >= 500) {
-      setStep("confirm");
+    if (!isAmountValid) {
+      if (numericAmount < 500) {
+        setError("Le montant minimum est de 500 FC");
+      } else if (total > balance) {
+        setError("Solde insuffisant pour cette transaction");
+      }
+      return;
     }
+    setError("");
+    setStep("confirm");
   };
 
   const handleConfirm = () => {
     setStep("pin");
   };
 
-  const handlePinSubmit = () => {
-    if (pin.length === 4) {
-      setStep("success");
+  const handlePinInput = (digit: string) => {
+    if (pin.length < 4) {
+      const newPin = pin + digit;
+      setPin(newPin);
+      if (newPin.length === 4) {
+        // Process transaction
+        setTimeout(() => {
+          const transaction = sendMoney(
+            recipientName,
+            recipient.replace(/\D/g, ""),
+            selectedNetwork!.name.includes("Airtel") ? "Airtel" :
+            selectedNetwork!.name.includes("Orange") ? "Orange" :
+            selectedNetwork!.name.includes("Vodacom") ? "Vodacom" : "Ketney",
+            numericAmount,
+            fee
+          );
+          setLastTransaction(transaction);
+          setStep("success");
+          
+          // Trigger confetti
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }, 500);
+      }
     }
+  };
+
+  const handlePinDelete = () => {
+    setPin(pin.slice(0, -1));
   };
 
   return (
@@ -126,7 +177,12 @@ const Send = () => {
                   <div className={`w-14 h-14 rounded-2xl ${network.color} flex items-center justify-center text-2xl`}>
                     {network.icon}
                   </div>
-                  <span className="text-lg font-semibold text-foreground">{network.name}</span>
+                  <div className="flex-1 text-left">
+                    <span className="text-lg font-semibold text-foreground block">{network.name}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {network.feePercent === 0 ? "Sans frais ✨" : `Frais: ${network.feePercent}%`}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -146,16 +202,24 @@ const Send = () => {
               <div className={`w-10 h-10 rounded-xl ${selectedNetwork?.color} flex items-center justify-center text-lg`}>
                 {selectedNetwork?.icon}
               </div>
-              <span className="font-medium text-foreground">{selectedNetwork?.name}</span>
+              <div className="flex-1">
+                <span className="font-medium text-foreground">{selectedNetwork?.name}</span>
+                <span className="text-sm text-muted-foreground block">
+                  {selectedNetwork?.feePercent === 0 ? "Sans frais" : `${selectedNetwork?.feePercent}% de frais`}
+                </span>
+              </div>
             </div>
 
             <label className="text-muted-foreground mb-2">Numéro du destinataire</label>
-            <div className="relative mb-4">
+            <div className="relative mb-2">
               <input
                 type="tel"
                 value={formatPhoneDisplay(recipient)}
-                onChange={(e) => setRecipient(e.target.value.replace(/\D/g, ""))}
-                placeholder="000 000 0000"
+                onChange={(e) => {
+                  setRecipient(e.target.value.replace(/\D/g, ""));
+                  setError("");
+                }}
+                placeholder="089 000 0000"
                 className="input-field text-lg font-medium pr-12"
                 maxLength={15}
               />
@@ -164,19 +228,25 @@ const Send = () => {
               </button>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              Entrez ou scannez un QR code
+            <p className="text-sm text-muted-foreground mb-4">
+              Entrez un numéro à 10 chiffres ou scannez un QR code
             </p>
+
+            {!isPhoneValid && recipient.length > 0 && (
+              <p className="text-sm text-destructive mb-4">
+                Le numéro doit contenir 10 chiffres
+              </p>
+            )}
 
             <div className="flex-1" />
 
             <div className="pb-8 safe-bottom">
               <button
                 onClick={handleRecipientSubmit}
-                disabled={recipient.length < 9}
+                disabled={!isPhoneValid}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continuer
+                Suivant
               </button>
             </div>
           </motion.div>
@@ -191,38 +261,71 @@ const Send = () => {
             exit={{ opacity: 0, x: -20 }}
             className="flex-1 px-6 flex flex-col"
           >
+            {/* Recipient info */}
+            <div className="card-elevated p-4 mb-6 flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-lg font-bold text-primary">
+                  {recipientName.split(" ").map(n => n[0]).join("")}
+                </span>
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-foreground">{recipientName}</p>
+                <p className="text-sm text-muted-foreground">+243 {formatPhoneDisplay(recipient)}</p>
+              </div>
+            </div>
+
             <label className="text-muted-foreground mb-2">Montant à envoyer</label>
             <div className="relative mb-2">
               <input
                 type="text"
                 inputMode="numeric"
-                value={amount ? formatCurrency(Number(amount)) : ""}
-                onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))}
+                value={numericAmount > 0 ? formatCurrency(numericAmount) : ""}
+                onChange={(e) => {
+                  setAmount(e.target.value.replace(/\D/g, ""));
+                  setError("");
+                }}
                 placeholder="0"
                 className="input-field text-3xl font-bold text-center pr-16"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-medium text-muted-foreground">
-                CDF
+                FC
               </span>
             </div>
-            <p className="text-sm text-muted-foreground text-center mb-8">
-              Minimum : 500 CDF
-            </p>
+            
+            <div className="flex justify-between text-sm mb-4">
+              <span className="text-muted-foreground">Minimum : 500 FC</span>
+              <span className="text-muted-foreground">Solde : {formatCurrency(balance)} FC</span>
+            </div>
 
-            {Number(amount) >= 500 && (
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 rounded-xl mb-4">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
+            {numericAmount >= 500 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="card-elevated p-4 space-y-3"
               >
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Frais (1%)</span>
-                  <span className="font-medium text-foreground">{formatCurrency(fee)} CDF</span>
+                  <span className="text-muted-foreground">Montant</span>
+                  <span className="font-medium text-foreground">{formatCurrency(numericAmount)} FC</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Frais ({selectedNetwork?.feePercent}%)
+                  </span>
+                  <span className={`font-medium ${fee === 0 ? "text-accent" : "text-foreground"}`}>
+                    {fee === 0 ? "Gratuit ✨" : `${formatCurrency(fee)} FC`}
+                  </span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between">
                   <span className="font-semibold text-foreground">Total à payer</span>
-                  <span className="font-bold text-primary">{formatCurrency(total)} CDF</span>
+                  <span className="font-bold text-primary">{formatCurrency(total)} FC</span>
                 </div>
               </motion.div>
             )}
@@ -232,10 +335,10 @@ const Send = () => {
             <div className="pb-8 safe-bottom">
               <button
                 onClick={handleAmountSubmit}
-                disabled={Number(amount) < 500}
+                disabled={!isAmountValid}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continuer
+                Suivant
               </button>
             </div>
           </motion.div>
@@ -266,26 +369,31 @@ const Send = () => {
 
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Destinataire</span>
-                  <span className="font-medium text-foreground">+243 {formatPhoneDisplay(recipient)}</span>
+                  <div className="text-right">
+                    <p className="font-medium text-foreground">{recipientName}</p>
+                    <p className="text-sm text-muted-foreground">+243 {formatPhoneDisplay(recipient)}</p>
+                  </div>
                 </div>
 
                 <div className="h-px bg-border" />
 
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Montant</span>
-                  <span className="font-medium text-foreground">{formatCurrency(Number(amount))} CDF</span>
+                  <span className="font-medium text-foreground">{formatCurrency(numericAmount)} FC</span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Frais</span>
-                  <span className="font-medium text-foreground">{formatCurrency(fee)} CDF</span>
+                  <span className={`font-medium ${fee === 0 ? "text-accent" : "text-foreground"}`}>
+                    {fee === 0 ? "Gratuit ✨" : `${formatCurrency(fee)} FC`}
+                  </span>
                 </div>
 
                 <div className="h-px bg-border" />
 
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-foreground">Total</span>
-                  <span className="text-xl font-bold text-primary">{formatCurrency(total)} CDF</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(total)} FC</span>
                 </div>
               </div>
             </div>
@@ -299,9 +407,12 @@ const Send = () => {
 
             <div className="flex-1" />
 
-            <div className="pb-8 safe-bottom">
+            <div className="pb-8 safe-bottom space-y-3">
               <button onClick={handleConfirm} className="btn-primary w-full">
                 Confirmer l'envoi
+              </button>
+              <button onClick={() => navigate("/home")} className="btn-secondary w-full">
+                Annuler
               </button>
             </div>
           </motion.div>
@@ -324,14 +435,16 @@ const Send = () => {
               <h2 className="text-xl font-bold text-foreground mb-2">
                 Entrez votre code PIN
               </h2>
-              <p className="text-muted-foreground mb-8">
-                Ou utilisez l'empreinte digitale
+              <p className="text-muted-foreground mb-8 text-center">
+                Confirmez avec votre code à 4 chiffres
               </p>
 
               <div className="flex gap-4 mb-8">
                 {[0, 1, 2, 3].map((i) => (
-                  <div
+                  <motion.div
                     key={i}
+                    initial={pin.length === i + 1 ? { scale: 1.2 } : {}}
+                    animate={{ scale: 1 }}
                     className={`w-4 h-4 rounded-full transition-colors ${
                       pin.length > i ? "bg-primary" : "bg-border"
                     }`}
@@ -346,17 +459,16 @@ const Send = () => {
                     key={i}
                     onClick={() => {
                       if (num === "del") {
-                        setPin(pin.slice(0, -1));
-                      } else if (num !== null && pin.length < 4) {
-                        const newPin = pin + num;
-                        setPin(newPin);
-                        if (newPin.length === 4) {
-                          setTimeout(() => setStep("success"), 300);
-                        }
+                        handlePinDelete();
+                      } else if (num !== null) {
+                        handlePinInput(String(num));
                       }
                     }}
+                    disabled={pin.length === 4}
                     className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-semibold transition-colors ${
-                      num === null ? "invisible" : "bg-secondary hover:bg-muted active:bg-primary active:text-primary-foreground"
+                      num === null 
+                        ? "invisible" 
+                        : "bg-secondary hover:bg-muted active:bg-primary active:text-primary-foreground disabled:opacity-50"
                     }`}
                   >
                     {num === "del" ? "⌫" : num}
@@ -364,11 +476,17 @@ const Send = () => {
                 ))}
               </div>
             </div>
+
+            <div className="pb-8 safe-bottom w-full">
+              <button onClick={() => navigate("/home")} className="btn-secondary w-full">
+                Annuler
+              </button>
+            </div>
           </motion.div>
         )}
 
         {/* Success */}
-        {step === "success" && (
+        {step === "success" && lastTransaction && (
           <motion.div
             key="success"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -384,14 +502,46 @@ const Send = () => {
               <Check className="w-12 h-12 text-accent-foreground" />
             </motion.div>
 
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Transfert réussi !
-            </h1>
-            <p className="text-muted-foreground text-center mb-8">
-              Vous avez envoyé {formatCurrency(Number(amount))} CDF à +243 {formatPhoneDisplay(recipient)}
-            </p>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center"
+            >
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                Transfert réussi ! 🎉
+              </h1>
+              <p className="text-muted-foreground mb-2">
+                Vous avez envoyé
+              </p>
+              <p className="text-3xl font-extrabold text-primary mb-2">
+                {formatCurrency(lastTransaction.amount)} FC
+              </p>
+              <p className="text-muted-foreground">
+                à {lastTransaction.recipient}
+              </p>
+            </motion.div>
 
-            <div className="w-full space-y-3">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="card-elevated p-4 mt-8 w-full"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground text-sm">Référence</span>
+                <span className="font-mono text-sm font-medium text-foreground">
+                  {lastTransaction.transactionRef}
+                </span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="w-full mt-8 space-y-3"
+            >
               <button
                 onClick={() => navigate("/home")}
                 className="btn-primary w-full"
@@ -401,7 +551,7 @@ const Send = () => {
               <button className="btn-secondary w-full">
                 Télécharger le reçu
               </button>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

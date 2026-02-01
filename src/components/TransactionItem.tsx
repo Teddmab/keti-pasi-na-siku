@@ -1,24 +1,19 @@
-import { ArrowUpRight, ArrowDownLeft, Wallet, RotateCcw } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Wallet, RotateCcw, ReceiptText, ChevronRight } from "lucide-react";
+import { Transaction } from "@/context/UserContext";
 
 interface TransactionItemProps {
-  type: "sent" | "received" | "cashin" | "cashout";
-  recipient: string;
-  network: "Airtel" | "Orange" | "Vodacom";
-  amount: number;
-  status: "completed" | "pending" | "failed";
-  date: string;
+  transaction: Transaction;
   isLast?: boolean;
+  onClick?: () => void;
 }
 
 const TransactionItem = ({
-  type,
-  recipient,
-  network,
-  amount,
-  status,
-  date,
+  transaction,
   isLast = false,
+  onClick,
 }: TransactionItemProps) => {
+  const { type, recipient, network, amount, status, date } = transaction;
+
   const getIcon = () => {
     switch (type) {
       case "sent":
@@ -29,6 +24,8 @@ const TransactionItem = ({
         return <Wallet className="w-5 h-5" />;
       case "cashout":
         return <RotateCcw className="w-5 h-5" />;
+      case "bill":
+        return <ReceiptText className="w-5 h-5" />;
     }
   };
 
@@ -42,6 +39,8 @@ const TransactionItem = ({
         return "bg-accent/10 text-accent";
       case "cashout":
         return "bg-muted text-muted-foreground";
+      case "bill":
+        return "bg-yellow-500/10 text-yellow-600";
     }
   };
 
@@ -52,9 +51,11 @@ const TransactionItem = ({
       case "received":
         return `De ${recipient}`;
       case "cashin":
-        return `Cash In`;
+        return recipient;
       case "cashout":
-        return `Cash Out`;
+        return recipient;
+      case "bill":
+        return recipient;
     }
   };
 
@@ -66,6 +67,8 @@ const TransactionItem = ({
         return "text-primary";
       case "Vodacom":
         return "text-blue-500";
+      case "Ketney":
+        return "text-accent";
     }
   };
 
@@ -73,16 +76,23 @@ const TransactionItem = ({
     return new Intl.NumberFormat("fr-CD").format(value);
   };
 
-  const getStatusIcon = () => {
-    if (status === "completed") {
-      return "✓";
+  const getStatusBadge = () => {
+    switch (status) {
+      case "completed":
+        return <span className="text-xs text-accent">✓</span>;
+      case "pending":
+        return <span className="text-xs text-yellow-500 animate-pulse">⏳</span>;
+      case "failed":
+        return <span className="text-xs text-destructive">✗</span>;
     }
-    return null;
   };
 
   return (
-    <div className={`transaction-item ${!isLast ? "border-b border-border" : ""}`}>
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${getIconBg()}`}>
+    <button
+      onClick={onClick}
+      className={`transaction-item w-full text-left ${!isLast ? "border-b border-border" : ""}`}
+    >
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${getIconBg()}`}>
         {getIcon()}
       </div>
       
@@ -96,15 +106,16 @@ const TransactionItem = ({
         <p className="text-sm text-muted-foreground">{date}</p>
       </div>
       
-      <div className="text-right">
-        <p className={`font-semibold ${type === "received" || type === "cashin" ? "text-accent" : "text-foreground"}`}>
-          {type === "received" || type === "cashin" ? "+" : "-"}{formatCurrency(amount)} CDF
-        </p>
-        {status === "completed" && (
-          <span className="text-xs text-accent">{getStatusIcon()}</span>
-        )}
+      <div className="text-right flex items-center gap-2">
+        <div>
+          <p className={`font-semibold ${type === "received" || type === "cashin" ? "text-accent" : "text-foreground"}`}>
+            {type === "received" || type === "cashin" ? "+" : "-"}{formatCurrency(amount)} FC
+          </p>
+          {getStatusBadge()}
+        </div>
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
       </div>
-    </div>
+    </button>
   );
 };
 
