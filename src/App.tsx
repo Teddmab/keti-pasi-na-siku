@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Send from "./pages/Send";
 import Receive from "./pages/Receive";
+import CashIn from "./pages/CashIn";
+import CashOut from "./pages/CashOut";
 import History from "./pages/History";
 import Agents from "./pages/Agents";
 import Settings from "./pages/Settings";
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/home" element={<AppLayout><Home /></AppLayout>} />
             <Route path="/send" element={<AppLayout><Send /></AppLayout>} />
             <Route path="/receive" element={<AppLayout><Receive /></AppLayout>} />
+            <Route path="/cash-in" element={<AppLayout><CashIn /></AppLayout>} />
+            <Route path="/cash-out" element={<AppLayout><CashOut /></AppLayout>} />
             <Route path="/history" element={<AppLayout><History /></AppLayout>} />
             <Route path="/agents" element={<AppLayout><Agents /></AppLayout>} />
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
