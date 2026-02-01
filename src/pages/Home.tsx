@@ -22,12 +22,14 @@ import ExchangeRateWidget from "@/components/ExchangeRateWidget";
 import MobileMenu from "@/components/MobileMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser, Transaction } from "@/context/UserContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
   const { balance, balanceVisible, toggleBalanceVisibility, transactions, notifications } = useUser();
+  const { t } = useLanguage();
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +73,7 @@ const Home = () => {
         <div className="px-5 pt-5 pb-4 safe-top">
           <div className="flex items-center justify-between mb-4">
             <div className="min-w-0 flex-1">
-              <p className="text-muted-foreground text-[13px]">Bonjour 👋</p>
+              <p className="text-muted-foreground text-[13px]">{t.home.greeting} 👋</p>
               <h1 className="text-[17px] font-semibold text-foreground tracking-tight">Jean-Pierre</h1>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -104,7 +106,7 @@ const Home = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 opacity-80" />
-                  <span className="text-sm opacity-80">Mon solde</span>
+                  <span className="text-sm opacity-80">{t.home.myBalance}</span>
                 </div>
                 <button 
                   onClick={toggleBalanceVisibility}
@@ -146,7 +148,7 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
                 <ArrowUpRight className="w-7 h-7 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-foreground">Envoyer</span>
+              <span className="font-semibold text-foreground">{t.home.send}</span>
             </motion.button>
 
             <motion.button
@@ -159,7 +161,7 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center">
                 <ArrowDownLeft className="w-7 h-7 text-accent-foreground" />
               </div>
-              <span className="font-semibold text-foreground">Recevoir</span>
+              <span className="font-semibold text-foreground">{t.home.receive}</span>
             </motion.button>
           </div>
         </div>
@@ -172,14 +174,14 @@ const Home = () => {
               className="flex-1 btn-secondary action-card flex items-center justify-center gap-2"
             >
               <QrCode className="w-5 h-5" />
-              <span>Cash In</span>
+              <span>{t.home.cashIn}</span>
             </button>
             <button 
               onClick={() => navigate("/cash-out")}
               className="flex-1 btn-secondary action-card flex items-center justify-center gap-2"
             >
               <Wallet className="w-5 h-5" />
-              <span>Cash Out</span>
+              <span>{t.home.cashOut}</span>
             </button>
           </div>
         </div>
@@ -187,12 +189,12 @@ const Home = () => {
         {/* Recent Transactions */}
         <div className="px-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground">Transactions récentes</h2>
+            <h2 className="text-lg font-bold text-foreground">{t.home.recentTransactions}</h2>
             <button 
               onClick={() => navigate("/history")}
               className="text-primary font-medium text-sm"
             >
-              Voir tout
+              {t.common.seeAll}
             </button>
           </div>
 
@@ -233,7 +235,7 @@ const Home = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-muted-foreground text-sm">Bonjour 👋</p>
+          <p className="text-muted-foreground text-sm">{t.home.greeting} 👋</p>
           <h1 className="text-2xl font-bold text-foreground">Jean-Pierre Kabongo</h1>
         </div>
         <div className="flex items-center gap-3">
@@ -269,8 +271,8 @@ const Home = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Wallet className="w-4 h-4 opacity-80" />
-                  <span className="text-sm opacity-80">Mon solde disponible</span>
-                  <button 
+                  <span className="text-sm opacity-80">{t.home.availableBalance}</span>
+                  <button
                     onClick={toggleBalanceVisibility}
                     className="p-1 rounded-full hover:bg-white/10 transition-colors"
                   >
@@ -296,7 +298,7 @@ const Home = () => {
               </div>
               <div className="flex items-center gap-2 bg-white/20 rounded-2xl px-4 py-2">
                 <TrendingUp className="w-4 h-4" />
-                <span className="font-medium text-sm">+12% ce mois</span>
+                <span className="font-medium text-sm">+12% {t.home.thisMonth}</span>
               </div>
             </div>
           </motion.div>
@@ -311,7 +313,7 @@ const Home = () => {
         >
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-4 h-4 text-primary" />
-            <span className="font-medium text-foreground text-sm">Contacts fréquents</span>
+            <span className="font-medium text-foreground text-sm">{t.home.frequentContacts}</span>
           </div>
           <div className="flex -space-x-2">
             {[
@@ -349,8 +351,8 @@ const Home = () => {
             <ArrowUpRight className="w-6 h-6 text-primary-foreground" />
           </div>
           <div className="text-left min-w-0">
-            <span className="font-semibold text-foreground block text-sm">Envoyer</span>
-            <span className="text-xs text-muted-foreground">Transfert rapide</span>
+            <span className="font-semibold text-foreground block text-sm">{t.home.send}</span>
+            <span className="text-xs text-muted-foreground">{t.home.quickTransfer}</span>
           </div>
         </motion.button>
 
@@ -365,8 +367,8 @@ const Home = () => {
             <ArrowDownLeft className="w-6 h-6 text-accent-foreground" />
           </div>
           <div className="text-left min-w-0">
-            <span className="font-semibold text-foreground block text-sm">Recevoir</span>
-            <span className="text-xs text-muted-foreground">Via QR code</span>
+            <span className="font-semibold text-foreground block text-sm">{t.home.receive}</span>
+            <span className="text-xs text-muted-foreground">{t.home.viaQRCode}</span>
           </div>
         </motion.button>
 
@@ -381,8 +383,8 @@ const Home = () => {
             <QrCode className="w-6 h-6 text-foreground" />
           </div>
           <div className="text-left min-w-0">
-            <span className="font-semibold text-foreground block text-sm">Cash In</span>
-            <span className="text-xs text-muted-foreground">Dépôt d'argent</span>
+            <span className="font-semibold text-foreground block text-sm">{t.home.cashIn}</span>
+            <span className="text-xs text-muted-foreground">{t.home.deposit}</span>
           </div>
         </motion.button>
 
@@ -397,8 +399,8 @@ const Home = () => {
             <Wallet className="w-6 h-6 text-foreground" />
           </div>
           <div className="text-left min-w-0">
-            <span className="font-semibold text-foreground block text-sm">Cash Out</span>
-            <span className="text-xs text-muted-foreground">Retrait d'argent</span>
+            <span className="font-semibold text-foreground block text-sm">{t.home.cashOut}</span>
+            <span className="text-xs text-muted-foreground">{t.home.withdrawal}</span>
           </div>
         </motion.button>
       </div>
@@ -412,12 +414,12 @@ const Home = () => {
       {/* Recent Transactions */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">Transactions récentes</h2>
+          <h2 className="text-lg font-bold text-foreground">{t.home.recentTransactions}</h2>
           <button 
             onClick={() => navigate("/history")}
             className="text-primary font-medium text-sm hover:underline"
           >
-            Voir tout l'historique →
+            {t.common.seeAllHistory}
           </button>
         </div>
 

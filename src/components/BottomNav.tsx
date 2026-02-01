@@ -1,10 +1,12 @@
 import { Home, Clock, Scan } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   
   const getActiveTab = () => {
     const path = location.pathname;
@@ -17,9 +19,9 @@ const BottomNav = () => {
   const active = getActiveTab();
 
   const navItems = [
-    { id: "home" as const, icon: Home, label: "Accueil", path: "/home" },
-    { id: "scanner" as const, icon: Scan, label: "Scanner", path: "/scanner", isCenter: true },
-    { id: "history" as const, icon: Clock, label: "Historique", path: "/history" },
+    { id: "home" as const, icon: Home, label: t.nav.home, path: "/home" },
+    { id: "scanner" as const, icon: Scan, label: t.nav.scanner, path: "/scanner", isCenter: true },
+    { id: "history" as const, icon: Clock, label: t.nav.history, path: "/history" },
   ];
 
   return (
