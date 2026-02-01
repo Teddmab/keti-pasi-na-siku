@@ -135,9 +135,26 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+    /* True iOS system font stack */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Helvetica", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1;
+    text-rendering: optimizeLegibility;
+    /* iOS letter spacing */
+    letter-spacing: -0.01em;
+  }
+  
+  /* iOS-style headings with tighter tracking */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+  
+  /* iOS body text */
+  p, span, label, input, button {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
   }
   
   /* Mobile viewport fix */
