@@ -6,13 +6,11 @@ import {
   QrCode, 
   Wallet,
   Bell,
-  Scan,
   TrendingUp,
   Users,
   Eye,
   EyeOff,
-  HelpCircle,
-  MessageCircleQuestion
+  Menu
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TransactionItem from "@/components/TransactionItem";
@@ -21,6 +19,7 @@ import TransactionSkeleton from "@/components/TransactionSkeleton";
 import BalanceCardSkeleton from "@/components/BalanceCardSkeleton";
 import SavingsWidget from "@/components/SavingsWidget";
 import ExchangeRateWidget from "@/components/ExchangeRateWidget";
+import MobileMenu from "@/components/MobileMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser, Transaction } from "@/context/UserContext";
 
@@ -32,6 +31,7 @@ const Home = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Simulate loading when navigating to home
   useEffect(() => {
@@ -64,28 +64,25 @@ const Home = () => {
   if (isMobile) {
     return (
       <div className="pb-24">
+        {/* Mobile Menu */}
+        <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+        
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 safe-top">
+        <div className="px-5 pt-5 pb-4 safe-top">
           <div className="flex items-center justify-between mb-4">
             <div className="min-w-0 flex-1">
-              <p className="text-muted-foreground text-sm">Bonjour 👋</p>
-              <h1 className="text-xl font-bold text-foreground truncate">Jean-Pierre</h1>
+              <p className="text-muted-foreground text-[13px]">Bonjour 👋</p>
+              <h1 className="text-[17px] font-semibold text-foreground tracking-tight">Jean-Pierre</h1>
             </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Exchange Rate Badge */}
               <ExchangeRateWidget rate={exchangeRate} previousRate={2830} compact />
+              {/* Menu Button */}
               <button 
-                onClick={() => navigate("/support")}
-                className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center"
-                title="Aide & FAQ"
-              >
-                <HelpCircle className="w-4 h-4 text-foreground" />
-              </button>
-              <button 
-                onClick={() => navigate("/notifications")}
+                onClick={() => setMenuOpen(true)}
                 className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center relative"
               >
-                <Bell className="w-4 h-4 text-foreground" />
+                <Menu className="w-[18px] h-[18px] text-foreground" />
                 {unreadNotifications > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
                     {unreadNotifications}
@@ -241,13 +238,6 @@ const Home = () => {
         </div>
         <div className="flex items-center gap-3">
           <ExchangeRateWidget rate={exchangeRate} previousRate={2830} compact />
-          <button 
-            onClick={() => navigate("/support")}
-            className="w-11 h-11 rounded-full bg-card shadow-card flex items-center justify-center hover:bg-secondary transition-colors"
-            title="Aide & FAQ"
-          >
-            <HelpCircle className="w-5 h-5 text-foreground" />
-          </button>
           <button 
             onClick={() => navigate("/notifications")}
             className="w-11 h-11 rounded-full bg-card shadow-card flex items-center justify-center relative hover:bg-secondary transition-colors"

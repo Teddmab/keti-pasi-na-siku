@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 /* KETNEY FinTech Design System
-   A warm, trustworthy mobile wallet for DRC
+   iOS-inspired clean design for DRC mobile wallet
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* SF Pro Display-like system font stack for iOS feel */
 
 @layer base {
   :root {
@@ -134,8 +134,10 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Mobile viewport fix */
