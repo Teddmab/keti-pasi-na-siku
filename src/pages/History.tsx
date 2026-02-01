@@ -1,75 +1,27 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Filter } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import TransactionItem from "@/components/TransactionItem";
+import TransactionReceipt from "@/components/TransactionReceipt";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUser, Transaction } from "@/context/UserContext";
 
-type FilterType = "all" | "sent" | "received" | "cashin" | "cashout";
+type FilterType = "all" | "sent" | "received" | "cashin" | "cashout" | "bill";
 
 const History = () => {
   const [filter, setFilter] = useState<FilterType>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { transactions } = useUser();
 
-  const allTransactions = [
-    {
-      id: "1",
-      type: "sent" as const,
-      recipient: "Sarah M.",
-      network: "Orange" as const,
-      amount: 15000,
-      status: "completed" as const,
-      date: "Aujourd'hui, 14:30",
-    },
-    {
-      id: "2",
-      type: "received" as const,
-      recipient: "Jean K.",
-      network: "Airtel" as const,
-      amount: 20000,
-      status: "completed" as const,
-      date: "Aujourd'hui, 10:15",
-    },
-    {
-      id: "3",
-      type: "cashin" as const,
-      recipient: "Agent Gombe",
-      network: "Vodacom" as const,
-      amount: 50000,
-      status: "completed" as const,
-      date: "Hier, 16:45",
-    },
-    {
-      id: "4",
-      type: "sent" as const,
-      recipient: "Marie L.",
-      network: "Airtel" as const,
-      amount: 8000,
-      status: "completed" as const,
-      date: "Hier, 09:20",
-    },
-    {
-      id: "5",
-      type: "received" as const,
-      recipient: "Papa",
-      network: "Orange" as const,
-      amount: 100000,
-      status: "completed" as const,
-      date: "20 Jan, 18:00",
-    },
-    {
-      id: "6",
-      type: "cashout" as const,
-      recipient: "Agent Bandal",
-      network: "Vodacom" as const,
-      amount: 30000,
-      status: "completed" as const,
-      date: "19 Jan, 14:30",
-    },
-  ];
-
-  const filteredTransactions = allTransactions.filter((t) => {
-    if (filter === "all") return true;
-    return t.type === filter;
+  const filteredTransactions = transactions.filter((t) => {
+    const matchesFilter = filter === "all" || t.type === filter;
+    const matchesSearch = searchQuery === "" || 
+      t.recipient.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.transactionRef.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
 
   const filterOptions: { value: FilterType; label: string }[] = [
@@ -78,7 +30,13 @@ const History = () => {
     { value: "received", label: "Reçus" },
     { value: "cashin", label: "Cash In" },
     { value: "cashout", label: "Cash Out" },
+    { value: "bill", label: "Factures" },
   ];
+
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setReceiptOpen(true);
+  };
 
   return (
     <div className={isMobile ? "pb-24 safe-top" : "py-2"}>
@@ -93,6 +51,20 @@ const History = () => {
             <span className="hidden lg:inline font-medium text-foreground">Télécharger PDF</span>
           </button>
         </div>
+
+        {/* Search - Desktop */}
+        {!isMobile && (
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher une transaction..."
+              className="input-field pl-12"
+            />
+          </div>
+        )}
 
         {/* Filters */}
         <div className={`flex gap-2 overflow-x-auto pb-2 scrollbar-hide ${isMobile ? "-mx-6 px-6" : ""}`}>
@@ -123,8 +95,9 @@ const History = () => {
             filteredTransactions.map((transaction, index) => (
               <TransactionItem
                 key={transaction.id}
-                {...transaction}
+                transaction={transaction}
                 isLast={index === filteredTransactions.length - 1}
+                onClick={() => handleTransactionClick(transaction)}
               />
             ))
           ) : (
@@ -134,6 +107,13 @@ const History = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Transaction Receipt Modal */}
+      <TransactionReceipt
+        transaction={selectedTransaction}
+        isOpen={receiptOpen}
+        onClose={() => setReceiptOpen(false)}
+      />
     </div>
   );
 };

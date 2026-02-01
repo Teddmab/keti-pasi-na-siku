@@ -1,5 +1,6 @@
-import { Home, Clock, MapPin, Settings, Wallet, LogOut, User } from "lucide-react";
+import { Home, Clock, MapPin, Settings, Wallet, LogOut, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/context/UserContext";
 
 interface DesktopSidebarProps {
   active: "home" | "history" | "agents" | "settings";
@@ -7,6 +8,8 @@ interface DesktopSidebarProps {
 
 const DesktopSidebar = ({ active }: DesktopSidebarProps) => {
   const navigate = useNavigate();
+  const { userName, userPhone, userInitials, notifications } = useUser();
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const navItems = [
     { id: "home" as const, icon: Home, label: "Accueil", path: "/home" },
@@ -31,11 +34,11 @@ const DesktopSidebar = ({ active }: DesktopSidebarProps) => {
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-2xl">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-sm font-bold text-primary-foreground">JP</span>
+            <span className="text-sm font-bold text-primary-foreground">{userInitials}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground text-sm truncate">Jean-Pierre K.</p>
-            <p className="text-xs text-muted-foreground">+243 089 000 1234</p>
+            <p className="font-medium text-foreground text-sm truncate">{userName.split(" ")[0]} {userName.split(" ")[1]?.[0]}.</p>
+            <p className="text-xs text-muted-foreground">+243 {userPhone}</p>
           </div>
         </div>
       </div>
@@ -58,6 +61,24 @@ const DesktopSidebar = ({ active }: DesktopSidebarProps) => {
               </button>
             </li>
           ))}
+          
+          {/* Notifications link */}
+          <li>
+            <button
+              onClick={() => navigate("/notifications")}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              <div className="relative">
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] text-primary-foreground flex items-center justify-center font-bold">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+              <span className="font-medium">Notifications</span>
+            </button>
+          </li>
         </ul>
       </nav>
 

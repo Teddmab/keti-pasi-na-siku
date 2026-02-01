@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Clock, MapPin, Settings, Wallet } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import DesktopSidebar from "@/components/DesktopSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,8 +23,8 @@ const AppLayout = ({ children, showNav = true }: AppLayoutProps) => {
     return "home";
   };
 
-  // Full-screen pages without nav (welcome, login, send, receive)
-  const noNavPages = ["/", "/login", "/send", "/receive"];
+  // Full-screen pages without nav (welcome, login, send, receive, notifications)
+  const noNavPages = ["/", "/login", "/send", "/receive", "/notifications"];
   const hideNav = noNavPages.includes(location.pathname) || !showNav;
 
   if (hideNav) {
@@ -53,7 +52,7 @@ const AppLayout = ({ children, showNav = true }: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-secondary/30 flex">
       <DesktopSidebar active={getActiveNav()} />
-      <main className="flex-1 p-6 lg:p-8">
+      <main className="flex-1 p-6 lg:p-8 overflow-auto">
         <div className="max-w-4xl mx-auto">
           {children}
         </div>
