@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "@/context/UserContext";
 import { USSDModeProvider, useUSSDMode } from "@/context/USSDModeContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import AppLayout from "@/components/AppLayout";
 import USSDInterface from "@/components/USSDInterface";
 import Welcome from "./pages/Welcome";
@@ -57,17 +58,19 @@ const AppRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <UserProvider>
-      <USSDModeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-center" />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </USSDModeProvider>
-    </UserProvider>
+    <LanguageProvider>
+      <UserProvider>
+        <USSDModeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner position="top-center" />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </USSDModeProvider>
+      </UserProvider>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

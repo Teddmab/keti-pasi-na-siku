@@ -1,19 +1,16 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Menu, 
   X, 
   Settings, 
   MapPin, 
   HelpCircle, 
   Bell,
   CreditCard,
-  Shield,
-  LogOut,
   ChevronRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -23,19 +20,20 @@ interface MobileMenuProps {
 const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   const navigate = useNavigate();
   const { notifications } = useUser();
+  const { t } = useLanguage();
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const menuItems = [
     { 
       icon: Bell, 
-      label: "Notifications", 
+      label: t.menu.notifications, 
       path: "/notifications",
       badge: unreadCount > 0 ? unreadCount : undefined
     },
-    { icon: MapPin, label: "Agents", path: "/agents" },
-    { icon: CreditCard, label: "Cartes virtuelles", path: "/cards" },
-    { icon: HelpCircle, label: "Aide & FAQ", path: "/support" },
-    { icon: Settings, label: "Paramètres", path: "/settings" },
+    { icon: MapPin, label: t.menu.agents, path: "/agents" },
+    { icon: CreditCard, label: t.menu.virtualCards, path: "/cards" },
+    { icon: HelpCircle, label: t.menu.helpFaq, path: "/support" },
+    { icon: Settings, label: t.menu.settings, path: "/settings" },
   ];
 
   const handleNavigate = (path: string) => {
@@ -67,7 +65,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <span className="font-semibold text-foreground">Menu</span>
+              <span className="font-semibold text-foreground">{t.menu.title}</span>
               <button 
                 onClick={onClose}
                 className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center"

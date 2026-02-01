@@ -10,9 +10,7 @@ import {
   User,
   Bell,
   FileText,
-  X,
   Check,
-  ArrowLeft,
   Upload,
   Camera,
   Loader2,
@@ -22,6 +20,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUSSDMode } from "@/context/USSDModeContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { Language } from "@/i18n/translations";
 import { toast } from "sonner";
 import mockApi from "@/lib/mockApi";
 import {
@@ -48,19 +48,18 @@ interface SettingItem {
   onClick?: () => void;
 }
 
-type Language = "fr" | "sw" | "ln";
 type KYCStep = "intro" | "document" | "uploading" | "verifying" | "success";
 
-const languages: { code: Language; name: string; nativeName: string }[] = [
-  { code: "fr", name: "Français", nativeName: "Français" },
-  { code: "sw", name: "Swahili", nativeName: "Kiswahili" },
-  { code: "ln", name: "Lingala", nativeName: "Lingála" },
+const languages: { code: Language; name: string; flag: string }[] = [
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "en", name: "English", flag: "🇬🇧" },
 ];
 
 const Settings = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { isUSSDMode, toggleUSSDMode } = useUSSDMode();
+  const { language, setLanguage, t } = useLanguage();
   
   // Modal states
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -69,7 +68,6 @@ const Settings = () => {
   const [biometricModalOpen, setBiometricModalOpen] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricStep, setBiometricStep] = useState<"intro" | "scanning" | "success" | "disable">("intro");
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>("fr");
   const [kycLevel, setKycLevel] = useState(1);
   
   // PIN change states
@@ -85,6 +83,10 @@ const Settings = () => {
 
   const getLanguageName = (code: Language) => {
     return languages.find(l => l.code === code)?.name || "Français";
+  };
+
+  const getLanguageFlag = (code: Language) => {
+    return languages.find(l => l.code === code)?.flag || "🇫🇷";
   };
 
   const handlePinInput = (digit: string, type: "current" | "new" | "confirm") => {
@@ -172,9 +174,10 @@ const Settings = () => {
   };
 
   const handleLanguageSelect = (code: Language) => {
-    setSelectedLanguage(code);
+    setLanguage(code);
     setLanguageModalOpen(false);
-    toast.success(`Langue changée en ${getLanguageName(code)}`);
+    const langName = getLanguageName(code);
+    toast.success(language === "en" ? `Language changed to ${langName}` : `Langue changée en ${langName}`);
   };
 
   // KYC Flow handlers
@@ -223,7 +226,7 @@ const Settings = () => {
     {
       title: "Préférences",
       items: [
-        { id: "language", icon: Globe, label: "Langue", value: getLanguageName(selectedLanguage), onClick: () => setLanguageModalOpen(true) },
+        { id: "language", icon: Globe, label: t.settings.language, value: `${getLanguageFlag(language)} ${getLanguageName(language)}`, onClick: () => setLanguageModalOpen(true) },
         { id: "ussd", icon: Wifi, label: "Mode Bas Débit", value: isUSSDMode ? "Activé" : "Désactivé" },
       ],
     },
@@ -327,14 +330,14 @@ const Settings = () => {
           key={lang.code}
           onClick={() => handleLanguageSelect(lang.code)}
           className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
-            selectedLanguage === lang.code ? "bg-primary/10" : "hover:bg-secondary"
+            language === lang.code ? "bg-primary/10" : "hover:bg-secondary"
           }`}
         >
-          <div className="text-left">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{lang.flag}</span>
             <p className="font-medium text-foreground">{lang.name}</p>
-            <p className="text-sm text-muted-foreground">{lang.nativeName}</p>
           </div>
-          {selectedLanguage === lang.code && (
+          {language === lang.code && (
             <Check className="w-5 h-5 text-primary" />
           )}
         </button>
