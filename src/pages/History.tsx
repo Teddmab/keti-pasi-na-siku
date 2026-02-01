@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Filter, ChevronDown } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { Download, Filter } from "lucide-react";
 import TransactionItem from "@/components/TransactionItem";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type FilterType = "all" | "sent" | "received" | "cashin" | "cashout";
 
 const History = () => {
   const [filter, setFilter] = useState<FilterType>("all");
+  const isMobile = useIsMobile();
 
   const allTransactions = [
     {
@@ -80,18 +81,21 @@ const History = () => {
   ];
 
   return (
-    <div className="page-container safe-top">
+    <div className={isMobile ? "pb-24 safe-top" : "py-2"}>
       {/* Header */}
-      <div className="px-6 pt-6 pb-4">
+      <div className={isMobile ? "px-6 pt-6 pb-4" : "mb-6"}>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Historique</h1>
-          <button className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+          <h1 className={`font-bold text-foreground ${isMobile ? "text-2xl" : "text-2xl"}`}>
+            Historique
+          </h1>
+          <button className="w-10 h-10 lg:w-auto lg:px-4 lg:py-2 rounded-full lg:rounded-xl bg-secondary flex items-center justify-center gap-2 hover:bg-muted transition-colors">
             <Download className="w-5 h-5 text-foreground" />
+            <span className="hidden lg:inline font-medium text-foreground">Télécharger PDF</span>
           </button>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+        <div className={`flex gap-2 overflow-x-auto pb-2 scrollbar-hide ${isMobile ? "-mx-6 px-6" : ""}`}>
           {filterOptions.map((option) => (
             <button
               key={option.value}
@@ -109,7 +113,7 @@ const History = () => {
       </div>
 
       {/* Transaction List */}
-      <div className="px-6">
+      <div className={isMobile ? "px-6" : ""}>
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -130,8 +134,6 @@ const History = () => {
           )}
         </motion.div>
       </div>
-
-      <BottomNav active="history" />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import {
   FileText
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import BottomNav from "@/components/BottomNav";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SettingItem {
   id: string;
@@ -25,6 +25,7 @@ interface SettingItem {
 
 const Settings = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const settingGroups: { title: string; items: SettingItem[] }[] = [
     {
@@ -52,38 +53,40 @@ const Settings = () => {
       title: "Support",
       items: [
         { id: "help", icon: HelpCircle, label: "Aide & Support" },
-        { id: "logout", icon: LogOut, label: "Se déconnecter", danger: true, onClick: () => navigate("/") },
+        ...(isMobile ? [{ id: "logout", icon: LogOut, label: "Se déconnecter", danger: true, onClick: () => navigate("/") }] : []),
       ],
     },
   ];
 
   return (
-    <div className="page-container safe-top">
+    <div className={isMobile ? "pb-24 safe-top" : "py-2"}>
       {/* Header */}
-      <div className="px-6 pt-6 pb-4">
+      <div className={isMobile ? "px-6 pt-6 pb-4" : "mb-6"}>
         <h1 className="text-2xl font-bold text-foreground">Paramètres</h1>
       </div>
 
-      {/* Profile Card */}
-      <div className="px-6 mb-6">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="card-elevated p-5 flex items-center gap-4"
-        >
-          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-2xl font-bold text-primary-foreground">JP</span>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-bold text-foreground">Jean-Pierre Kabongo</h2>
-            <p className="text-muted-foreground">+243 089 000 1234</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </motion.div>
-      </div>
+      {/* Profile Card - Only on mobile, desktop has it in sidebar */}
+      {isMobile && (
+        <div className="px-6 mb-6">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="card-elevated p-5 flex items-center gap-4"
+          >
+            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-2xl font-bold text-primary-foreground">JP</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-foreground">Jean-Pierre Kabongo</h2>
+              <p className="text-muted-foreground">+243 089 000 1234</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </motion.div>
+        </div>
+      )}
 
       {/* Settings Groups */}
-      <div className="px-6 space-y-6">
+      <div className={`space-y-6 ${isMobile ? "px-6" : "grid lg:grid-cols-2 lg:gap-6 lg:space-y-0"}`}>
         {settingGroups.map((group, groupIndex) => (
           <motion.div
             key={group.title}
@@ -137,12 +140,12 @@ const Settings = () => {
         ))}
       </div>
 
-      {/* Version */}
-      <div className="px-6 py-8 text-center">
-        <p className="text-sm text-muted-foreground">KETNEY v1.0.0</p>
-      </div>
-
-      <BottomNav active="settings" />
+      {/* Version - Only on mobile */}
+      {isMobile && (
+        <div className="px-6 py-8 text-center">
+          <p className="text-sm text-muted-foreground">KETNEY v1.0.0</p>
+        </div>
+      )}
     </div>
   );
 };
