@@ -15,6 +15,7 @@ import CashOut from "./pages/CashOut";
 import History from "./pages/History";
 import Agents from "./pages/Agents";
 import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/history" element={<AppLayout><History /></AppLayout>} />
             <Route path="/agents" element={<AppLayout><Agents /></AppLayout>} />
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+            <Route path="/support" element={<AppLayout><Support /></AppLayout>} />
             <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
