@@ -135,11 +135,17 @@ const Home = () => {
         {/* Quick Actions */}
         <div className="px-6 mb-6">
           <div className="flex gap-3">
-            <button className="flex-1 btn-secondary action-card flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate("/cash-in")}
+              className="flex-1 btn-secondary action-card flex items-center justify-center gap-2"
+            >
               <QrCode className="w-5 h-5" />
               <span>Cash In</span>
             </button>
-            <button className="flex-1 btn-secondary action-card flex items-center justify-center gap-2">
+            <button 
+              onClick={() => navigate("/cash-out")}
+              className="flex-1 btn-secondary action-card flex items-center justify-center gap-2"
+            >
               <Wallet className="w-5 h-5" />
               <span>Cash Out</span>
             </button>
@@ -333,6 +339,7 @@ const Home = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
+          onClick={() => navigate("/cash-in")}
           className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
@@ -348,6 +355,7 @@ const Home = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.25 }}
+          onClick={() => navigate("/cash-out")}
           className="card-elevated action-card p-5 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
