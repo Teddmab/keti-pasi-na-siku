@@ -1,35 +1,47 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, MapPin, Check, Fingerprint, AlertCircle } from "lucide-react";
+import { 
+  ArrowLeft, 
+  MapPin, 
+  Check, 
+  Fingerprint, 
+  AlertCircle,
+  CreditCard,
+  Smartphone,
+  ChevronRight
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/context/UserContext";
+import { useLanguage } from "@/context/LanguageContext";
 import confetti from "canvas-confetti";
 
-type CashInStep = "agent" | "amount" | "confirm" | "pin" | "success";
+type CashInMethod = "select" | "mobile-money" | "card";
+type CashInStep = "method" | "amount" | "confirm" | "pin" | "success";
 
-interface Agent {
+interface MobileMoneyProvider {
   id: string;
   name: string;
   network: "Airtel" | "Orange" | "Vodacom";
-  address: string;
-  distance: string;
+  icon: string;
 }
 
-const agents: Agent[] = [
-  { id: "1", name: "Agent Orange – Gombe", network: "Orange", address: "Avenue du Commerce, Gombe", distance: "350 m" },
-  { id: "2", name: "Agent Airtel – Bandal", network: "Airtel", address: "Boulevard Lumumba, Bandal", distance: "1.2 km" },
-  { id: "3", name: "Agent Vodacom – Limete", network: "Vodacom", address: "Avenue des Poids Lourds, Limete", distance: "2.5 km" },
-  { id: "4", name: "Agent Orange – Matonge", network: "Orange", address: "Rue Kabinda, Matonge", distance: "3.1 km" },
+const mobileMoneyProviders: MobileMoneyProvider[] = [
+  { id: "orange", name: "Orange Money", network: "Orange", icon: "🟠" },
+  { id: "airtel", name: "Airtel Money", network: "Airtel", icon: "📱" },
+  { id: "mpesa", name: "M-Pesa", network: "Vodacom", icon: "📲" },
 ];
 
 const CashIn = () => {
   const navigate = useNavigate();
   const { balance } = useUser();
-  const [step, setStep] = useState<CashInStep>("agent");
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const { t, language } = useLanguage();
+  const [step, setStep] = useState<CashInStep>("method");
+  const [method, setMethod] = useState<CashInMethod>("select");
+  const [selectedProvider, setSelectedProvider] = useState<MobileMoneyProvider | null>(null);
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const numericAmount = Number(amount.replace(/\D/g, ""));
   const isAmountValid = numericAmount >= 1000;
@@ -47,34 +59,38 @@ const CashIn = () => {
     }
   };
 
-  const getNetworkIcon = (network: string) => {
-    switch (network) {
-      case "Airtel": return "📱";
-      case "Orange": return "🟠";
-      case "Vodacom": return "📲";
-      default: return "📍";
-    }
-  };
-
   const handleBack = () => {
     setError("");
     switch (step) {
-      case "agent": navigate("/home"); break;
-      case "amount": setStep("agent"); break;
+      case "method": navigate("/home"); break;
+      case "amount": setStep("method"); setMethod("select"); break;
       case "confirm": setStep("amount"); break;
       case "pin": setStep("confirm"); break;
       default: navigate("/home");
     }
   };
 
-  const handleAgentSelect = (agent: Agent) => {
-    setSelectedAgent(agent);
-    setStep("amount");
+  const handleMethodSelect = (selectedMethod: CashInMethod) => {
+    if (selectedMethod === "select") {
+      // Navigate to agents page
+      navigate("/agents");
+    } else {
+      setMethod(selectedMethod);
+      setStep("amount");
+    }
+  };
+
+  const handleProviderSelect = (provider: MobileMoneyProvider) => {
+    setSelectedProvider(provider);
   };
 
   const handleAmountSubmit = () => {
     if (!isAmountValid) {
-      setError("Le montant minimum est de 1 000 FC");
+      setError(language === "en" ? "Minimum amount is 1,000 FC" : "Le montant minimum est de 1 000 FC");
+      return;
+    }
+    if (method === "mobile-money" && !selectedProvider) {
+      setError(language === "en" ? "Please select a provider" : "Veuillez sélectionner un opérateur");
       return;
     }
     setError("");
@@ -102,6 +118,17 @@ const CashIn = () => {
     setPin(pin.slice(0, -1));
   };
 
+  const getMethodLabel = () => {
+    if (method === "card") return language === "en" ? "Debit Card" : "Carte bancaire";
+    if (method === "mobile-money") return selectedProvider?.name || "Mobile Money";
+    return "";
+  };
+
+  const getFees = () => {
+    if (method === "card") return Math.round(numericAmount * 0.025); // 2.5% fee
+    return 0; // Free for mobile money
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col safe-top">
       {step !== "success" && (
@@ -109,47 +136,149 @@ const CashIn = () => {
           <button onClick={handleBack} className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Cash In - Dépôt</h1>
+          <h1 className="text-lg font-bold text-foreground">
+            {language === "en" ? "Cash In - Deposit" : "Cash In - Dépôt"}
+          </h1>
         </div>
       )}
 
       <AnimatePresence mode="wait">
-        {step === "agent" && (
-          <motion.div key="agent" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 px-6">
-            <p className="text-muted-foreground mb-6">Choisissez un agent pour déposer :</p>
+        {step === "method" && (
+          <motion.div 
+            key="method" 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, x: -20 }} 
+            className="flex-1 px-6"
+          >
+            <p className="text-muted-foreground mb-6">
+              {language === "en" ? "How would you like to deposit money?" : "Comment souhaitez-vous déposer de l'argent ?"}
+            </p>
+            
             <div className="space-y-4">
-              {agents.map((agent) => (
-                <button key={agent.id} onClick={() => handleAgentSelect(agent)} className="w-full card-elevated p-4 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left">
-                  <div className={`w-12 h-12 rounded-2xl ${getNetworkColor(agent.network)} flex items-center justify-center text-xl`}>
-                    {getNetworkIcon(agent.network)}
-                  </div>
-                  <div className="flex-1">
-                    <span className="font-semibold text-foreground block">{agent.name}</span>
-                    <span className="text-sm text-muted-foreground">{agent.address}</span>
-                  </div>
-                  <span className="flex items-center gap-1 text-primary font-medium text-sm">
-                    <MapPin className="w-4 h-4" />
-                    {agent.distance}
+              {/* Agent Option */}
+              <button 
+                onClick={() => handleMethodSelect("select")}
+                className="w-full card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center">
+                  <MapPin className="w-7 h-7 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold text-foreground block text-base">
+                    {language === "en" ? "Cash Agent" : "Agent Cash"}
                   </span>
-                </button>
-              ))}
+                  <span className="text-sm text-muted-foreground">
+                    {language === "en" ? "Find an agent near you" : "Trouvez un agent près de chez vous"}
+                  </span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+
+              {/* Mobile Money Option */}
+              <button 
+                onClick={() => handleMethodSelect("mobile-money")}
+                className="w-full card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center">
+                  <Smartphone className="w-7 h-7 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold text-foreground block text-base">Mobile Money</span>
+                  <span className="text-sm text-muted-foreground">
+                    {language === "en" ? "Orange, Airtel, M-Pesa" : "Orange, Airtel, M-Pesa"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-accent font-medium px-2 py-1 bg-accent/10 rounded-full">
+                    {language === "en" ? "Free" : "Gratuit"}
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </button>
+
+              {/* Debit Card Option */}
+              <button 
+                onClick={() => handleMethodSelect("card")}
+                className="w-full card-elevated p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform text-left"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center">
+                  <CreditCard className="w-7 h-7 text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <span className="font-semibold text-foreground block text-base">
+                    {language === "en" ? "Debit Card" : "Carte bancaire"}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {language === "en" ? "Visa, Mastercard" : "Visa, Mastercard"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground font-medium px-2 py-1 bg-secondary rounded-full">
+                    2.5%
+                  </span>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </button>
             </div>
           </motion.div>
         )}
 
         {step === "amount" && (
-          <motion.div key="amount" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 px-6 flex flex-col">
-            <div className="card-elevated p-4 mb-6 flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-2xl ${getNetworkColor(selectedAgent?.network || "")} flex items-center justify-center text-xl`}>
-                {getNetworkIcon(selectedAgent?.network || "")}
+          <motion.div 
+            key="amount" 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, x: -20 }} 
+            className="flex-1 px-6 flex flex-col"
+          >
+            {/* Mobile Money Provider Selection */}
+            {method === "mobile-money" && (
+              <div className="mb-6">
+                <label className="text-muted-foreground mb-3 block">
+                  {language === "en" ? "Select your provider" : "Choisissez votre opérateur"}
+                </label>
+                <div className="flex gap-3">
+                  {mobileMoneyProviders.map((provider) => (
+                    <button
+                      key={provider.id}
+                      onClick={() => handleProviderSelect(provider)}
+                      className={`flex-1 p-3 rounded-2xl border-2 transition-all ${
+                        selectedProvider?.id === provider.id 
+                          ? "border-primary bg-primary/10" 
+                          : "border-border bg-card hover:border-primary/50"
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl ${getNetworkColor(provider.network)} flex items-center justify-center text-lg mx-auto mb-2`}>
+                        {provider.icon}
+                      </div>
+                      <span className="text-xs font-medium text-foreground block text-center">{provider.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-foreground">{selectedAgent?.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedAgent?.address}</p>
-              </div>
-            </div>
+            )}
 
-            <label className="text-muted-foreground mb-2">Montant à déposer</label>
+            {/* Card Info */}
+            {method === "card" && (
+              <div className="card-elevated p-4 mb-6 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-blue-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-foreground">
+                    {language === "en" ? "Debit Card Deposit" : "Dépôt par carte"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {language === "en" ? "2.5% processing fee" : "Frais de 2.5%"}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <label className="text-muted-foreground mb-2">
+              {language === "en" ? "Amount to deposit" : "Montant à déposer"}
+            </label>
             <div className="relative mb-2">
               <input
                 type="text"
@@ -163,8 +292,15 @@ const CashIn = () => {
             </div>
 
             <div className="flex justify-between text-sm mb-4">
-              <span className="text-muted-foreground">Minimum : 1 000 FC</span>
-              <span className="text-muted-foreground">Sans frais</span>
+              <span className="text-muted-foreground">
+                {language === "en" ? "Minimum: 1,000 FC" : "Minimum : 1 000 FC"}
+              </span>
+              <span className={method === "card" ? "text-muted-foreground" : "text-accent font-medium"}>
+                {method === "card" 
+                  ? (language === "en" ? "Fee: 2.5%" : "Frais : 2.5%")
+                  : (language === "en" ? "No fees" : "Sans frais")
+                }
+              </span>
             </div>
 
             {error && (
@@ -177,68 +313,102 @@ const CashIn = () => {
             <div className="flex-1" />
 
             <div className="pb-8 safe-bottom">
-              <button onClick={handleAmountSubmit} disabled={!isAmountValid} className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed">
-                Suivant
+              <button 
+                onClick={handleAmountSubmit} 
+                disabled={!isAmountValid || (method === "mobile-money" && !selectedProvider)} 
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {language === "en" ? "Next" : "Suivant"}
               </button>
             </div>
           </motion.div>
         )}
 
         {step === "confirm" && (
-          <motion.div key="confirm" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 px-6 flex flex-col">
+          <motion.div 
+            key="confirm" 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, x: -20 }} 
+            className="flex-1 px-6 flex flex-col"
+          >
             <div className="card-elevated p-6 mb-6">
-              <h2 className="text-lg font-bold text-foreground mb-6 text-center">Confirmer le dépôt</h2>
+              <h2 className="text-lg font-bold text-foreground mb-6 text-center">
+                {language === "en" ? "Confirm deposit" : "Confirmer le dépôt"}
+              </h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Agent</span>
-                  <span className="font-medium text-foreground">{selectedAgent?.name}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Adresse</span>
-                  <span className="font-medium text-foreground text-right">{selectedAgent?.address}</span>
+                  <span className="text-muted-foreground">
+                    {language === "en" ? "Method" : "Méthode"}
+                  </span>
+                  <span className="font-medium text-foreground">{getMethodLabel()}</span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Montant à déposer</span>
+                  <span className="text-muted-foreground">
+                    {language === "en" ? "Amount" : "Montant"}
+                  </span>
                   <span className="font-medium text-foreground">{formatCurrency(numericAmount)} FC</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Frais</span>
-                  <span className="font-medium text-accent">Gratuit ✨</span>
+                  <span className="text-muted-foreground">
+                    {language === "en" ? "Fees" : "Frais"}
+                  </span>
+                  <span className={`font-medium ${getFees() > 0 ? "text-foreground" : "text-accent"}`}>
+                    {getFees() > 0 ? `${formatCurrency(getFees())} FC` : (language === "en" ? "Free ✨" : "Gratuit ✨")}
+                  </span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-foreground">Total à recevoir</span>
-                  <span className="text-xl font-bold text-primary">{formatCurrency(numericAmount)} FC</span>
+                  <span className="font-semibold text-foreground">
+                    {language === "en" ? "You will receive" : "Vous recevrez"}
+                  </span>
+                  <span className="text-xl font-bold text-primary">
+                    {formatCurrency(numericAmount - getFees())} FC
+                  </span>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-4 bg-primary-soft rounded-2xl">
-              <AlertCircle className="w-5 h-5 text-primary mt-0.5" />
-              <p className="text-sm text-foreground">Rendez-vous chez l'agent avec ce code pour effectuer le dépôt.</p>
             </div>
 
             <div className="flex-1" />
 
             <div className="pb-8 safe-bottom space-y-3">
-              <button onClick={handleConfirm} className="btn-primary w-full">Générer le code</button>
-              <button onClick={() => navigate("/home")} className="btn-secondary w-full">Annuler</button>
+              <button onClick={handleConfirm} className="btn-primary w-full">
+                {language === "en" ? "Confirm" : "Confirmer"}
+              </button>
+              <button onClick={() => navigate("/home")} className="btn-secondary w-full">
+                {language === "en" ? "Cancel" : "Annuler"}
+              </button>
             </div>
           </motion.div>
         )}
 
         {step === "pin" && (
-          <motion.div key="pin" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 px-6 flex flex-col items-center">
+          <motion.div 
+            key="pin" 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, x: -20 }} 
+            className="flex-1 px-6 flex flex-col items-center"
+          >
             <div className="flex-1 flex flex-col items-center justify-center">
               <div className="w-20 h-20 rounded-full bg-primary-soft flex items-center justify-center mb-6">
                 <Fingerprint className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-2">Entrez votre code PIN</h2>
-              <p className="text-muted-foreground mb-8 text-center">Confirmez avec votre code à 4 chiffres</p>
+              <h2 className="text-xl font-bold text-foreground mb-2">
+                {language === "en" ? "Enter your PIN" : "Entrez votre code PIN"}
+              </h2>
+              <p className="text-muted-foreground mb-8 text-center">
+                {language === "en" ? "Confirm with your 4-digit code" : "Confirmez avec votre code à 4 chiffres"}
+              </p>
               <div className="flex gap-4 mb-8">
                 {[0, 1, 2, 3].map((i) => (
-                  <motion.div key={i} initial={pin.length === i + 1 ? { scale: 1.2 } : {}} animate={{ scale: 1 }} className={`w-4 h-4 rounded-full transition-colors ${pin.length > i ? "bg-primary" : "bg-border"}`} />
+                  <motion.div 
+                    key={i} 
+                    initial={pin.length === i + 1 ? { scale: 1.2 } : {}} 
+                    animate={{ scale: 1 }} 
+                    className={`w-4 h-4 rounded-full transition-colors ${pin.length > i ? "bg-primary" : "bg-border"}`} 
+                  />
                 ))}
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -263,20 +433,38 @@ const CashIn = () => {
         )}
 
         {step === "success" && (
-          <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex-1 flex flex-col items-center justify-center px-6">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.2 }} className="w-24 h-24 rounded-full bg-accent flex items-center justify-center mb-6">
+          <motion.div 
+            key="success" 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            className="flex-1 flex flex-col items-center justify-center px-6"
+          >
+            <motion.div 
+              initial={{ scale: 0 }} 
+              animate={{ scale: 1 }} 
+              transition={{ type: "spring", delay: 0.2 }} 
+              className="w-24 h-24 rounded-full bg-accent flex items-center justify-center mb-6"
+            >
               <Check className="w-12 h-12 text-accent-foreground" />
             </motion.div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Demande créée !</h2>
-            <p className="text-muted-foreground text-center mb-8">Rendez-vous chez {selectedAgent?.name} pour déposer {formatCurrency(numericAmount)} FC</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              {language === "en" ? "Deposit successful!" : "Dépôt réussi !"}
+            </h2>
+            <p className="text-muted-foreground text-center mb-8">
+              {formatCurrency(numericAmount - getFees())} FC {language === "en" ? "added to your account" : "ajoutés à votre compte"}
+            </p>
             
             <div className="card-elevated p-6 w-full max-w-xs mb-8">
-              <p className="text-muted-foreground text-sm text-center mb-2">Code de dépôt</p>
-              <p className="text-3xl font-bold text-primary text-center tracking-widest">KTN-{Math.random().toString(36).substring(2, 8).toUpperCase()}</p>
+              <p className="text-muted-foreground text-sm text-center mb-2">
+                {language === "en" ? "Transaction ID" : "Référence"}
+              </p>
+              <p className="text-lg font-bold text-primary text-center tracking-widest">
+                KTN-{Math.random().toString(36).substring(2, 8).toUpperCase()}
+              </p>
             </div>
 
             <button onClick={() => navigate("/home")} className="btn-primary w-full max-w-xs">
-              Retour à l'accueil
+              {language === "en" ? "Back to home" : "Retour à l'accueil"}
             </button>
           </motion.div>
         )}
