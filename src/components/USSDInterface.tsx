@@ -414,7 +414,7 @@ const USSDInterface = () => {
         <div className="border-2 border-green-400 p-3 mb-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-bold">KETNEY</h1>
+              <h1 className="text-lg font-bold">KaziPay</h1>
               <p className="text-[10px] opacity-60">Agrément BCC - EME</p>
             </div>
             <div className="text-right">

@@ -149,10 +149,10 @@ const Merchants = () => {
           </button>
           <div>
             <h1 className="text-xl font-bold text-foreground">
-              {language === "en" ? "Pay with KETNEY" : "Payer avec KETNEY"}
+              {language === "en" ? "Pay with KaziPay" : "Payer avec KaziPay"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {language === "en" ? "Shops accepting KETNEY" : "Commerces acceptant KETNEY"}
+              {language === "en" ? "Shops accepting KaziPay" : "Commerces acceptant KaziPay"}
             </p>
           </div>
         </div>

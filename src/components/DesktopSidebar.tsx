@@ -43,7 +43,7 @@ const DesktopSidebar = ({ active }: DesktopSidebarProps) => {
             <span className="text-lg font-bold text-primary-foreground">K</span>
           </div>
           <div>
-            <span className="text-xl font-bold text-foreground block">KETNEY</span>
+            <span className="text-xl font-bold text-foreground block">KaziPay</span>
             <span className="text-[10px] text-muted-foreground">Agrément BCC - EME</span>
           </div>
         </button>
@@ -133,7 +133,7 @@ const DesktopSidebar = ({ active }: DesktopSidebarProps) => {
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Déconnexion</span>
         </button>
-        <p className="text-xs text-muted-foreground text-center mt-4">KETNEY v1.0.0</p>
+        <p className="text-xs text-muted-foreground text-center mt-4">KaziPay v1.0.0</p>
       </div>
     </aside>
   );

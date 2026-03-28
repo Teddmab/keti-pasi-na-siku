@@ -103,7 +103,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
             {/* Footer */}
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border safe-bottom">
               <div className="text-xs text-muted-foreground text-center">
-                KETNEY v1.0.0
+                KaziPay v1.0.0
               </div>
             </div>
           </motion.div>

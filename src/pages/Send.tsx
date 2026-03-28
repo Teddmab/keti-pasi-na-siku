@@ -23,7 +23,7 @@ const networks: Network[] = [
   { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
   { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
   { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
-  { id: "ketney", name: "Ketney à Ketney", icon: "💚", color: "bg-accent", feePercent: 0, clearingFee: 0, isInterNetwork: false },
+  { id: "kazipay", name: "KaziPay à KaziPay", icon: "💚", color: "bg-accent", feePercent: 0, clearingFee: 0, isInterNetwork: false },
 ];
 
 // High-value threshold for MFA
@@ -51,8 +51,8 @@ const Send = () => {
     if (phone && name) {
       setRecipient(phone);
       setRecipientName(name);
-      // Auto-select Ketney network for pre-filled contacts
-      setSelectedNetwork(networks.find(n => n.id === "ketney") || null);
+      // Auto-select KaziPay network for pre-filled contacts
+      setSelectedNetwork(networks.find(n => n.id === "kazipay") || null);
       setStep("amount");
     }
   }, [searchParams]);
@@ -159,7 +159,7 @@ const Send = () => {
             recipient.replace(/\D/g, ""),
             selectedNetwork!.name.includes("Airtel") ? "Airtel" :
             selectedNetwork!.name.includes("Orange") ? "Orange" :
-            selectedNetwork!.name.includes("Vodacom") ? "Vodacom" : "Ketney",
+            selectedNetwork!.name.includes("Vodacom") ? "Vodacom" : "KaziPay",
             numericAmount,
             fee
           );
@@ -383,7 +383,7 @@ const Send = () => {
                     <div className="bg-primary-soft rounded-lg p-2 flex items-start gap-2">
                       <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-foreground">
-                        Transfert Inter-réseaux: Inclut les frais de clearing pour la compensation entre KETNEY et {selectedNetwork?.name}.
+                        Transfert Inter-réseaux: Inclut les frais de clearing pour la compensation entre KaziPay et {selectedNetwork?.name}.
                       </p>
                     </div>
                   </>

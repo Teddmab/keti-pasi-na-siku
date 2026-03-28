@@ -37,7 +37,7 @@ const faqs: FAQ[] = [
   },
   {
     question: "Quels sont les frais de transfert ?",
-    answer: "Les transferts Ketney à Ketney sont gratuits. Les transferts vers d'autres réseaux (Airtel, Orange, Vodacom) ont des frais de 1% du montant."
+    answer: "Les transferts KaziPay à KaziPay sont gratuits. Les transferts vers d'autres réseaux (Airtel, Orange, Vodacom) ont des frais de 1% du montant."
   },
   {
     question: "Comment recharger mon compte ?",
@@ -59,7 +59,7 @@ const getAIResponse = (input: string, messageHistory: Message[]): string => {
   
   // Greeting detection
   if (/^(bonjour|salut|hello|hi|hey|bonsoir)/i.test(lowerInput)) {
-    return "Bonjour ! 👋 Je suis votre assistant virtuel KETNEY. Je peux vous aider avec :\n\n• Envoi et réception d'argent\n• Frais de transfert\n• Trouver un agent\n• Sécurité du compte\n• Problèmes techniques\n\nQue puis-je faire pour vous ?";
+    return "Bonjour ! 👋 Je suis votre assistant virtuel KaziPay. Je peux vous aider avec :\n\n• Envoi et réception d'argent\n• Frais de transfert\n• Trouver un agent\n• Sécurité du compte\n• Problèmes techniques\n\nQue puis-je faire pour vous ?";
   }
   
   // Balance related
@@ -69,12 +69,12 @@ const getAIResponse = (input: string, messageHistory: Message[]): string => {
   
   // Fees related
   if (lowerInput.includes("frais") || lowerInput.includes("commission") || lowerInput.includes("coût")) {
-    return "💸 **Frais de transfert KETNEY**\n\n✅ **Gratuit** : Ketney → Ketney\n📱 **1%** : Ketney → Airtel, Orange, Vodacom\n\n*Exemple : Pour 10,000 FC vers Orange, les frais sont de 100 FC*\n\nLes frais de Cash Out dépendent du montant et de l'agent.";
+    return "💸 **Frais de transfert KaziPay**\n\n✅ **Gratuit** : KaziPay → KaziPay\n📱 **1%** : KaziPay → Airtel, Orange, Vodacom\n\n*Exemple : Pour 10,000 FC vers Orange, les frais sont de 100 FC*\n\nLes frais de Cash Out dépendent du montant et de l'agent.";
   }
   
   // Agent related
   if (lowerInput.includes("agent") || lowerInput.includes("retrait") || lowerInput.includes("dépôt") || lowerInput.includes("cash")) {
-    return "📍 **Trouver un agent KETNEY**\n\n1. Allez dans l'onglet **Agents** en bas de l'écran\n2. La carte affiche tous les agents près de vous\n3. Appuyez sur un agent pour voir ses horaires\n\n💡 Astuce : Les agents avec le badge ⭐ ont les meilleures évaluations !";
+    return "📍 **Trouver un agent KaziPay**\n\n1. Allez dans l'onglet **Agents** en bas de l'écran\n2. La carte affiche tous les agents près de vous\n3. Appuyez sur un agent pour voir ses horaires\n\n💡 Astuce : Les agents avec le badge ⭐ ont les meilleures évaluations !";
   }
   
   // PIN/Security related
@@ -89,7 +89,7 @@ const getAIResponse = (input: string, messageHistory: Message[]): string => {
   
   // Virtual cards
   if (lowerInput.includes("carte") || lowerInput.includes("virtuelle") || lowerInput.includes("visa") || lowerInput.includes("mastercard")) {
-    return "💳 **Cartes Virtuelles KETNEY**\n\nVous pouvez créer une carte virtuelle pour vos achats en ligne :\n\n1. Allez dans **Mes Cartes** dans le menu\n2. Appuyez sur **Générer une carte**\n3. Choisissez VISA ou Mastercard\n\nLa carte est liée à votre solde KETNEY. Touchez la carte pour voir le CVV !";
+    return "💳 **Cartes Virtuelles KaziPay**\n\nVous pouvez créer une carte virtuelle pour vos achats en ligne :\n\n1. Allez dans **Mes Cartes** dans le menu\n2. Appuyez sur **Générer une carte**\n3. Choisissez VISA ou Mastercard\n\nLa carte est liée à votre solde KaziPay. Touchez la carte pour voir le CVV !";
   }
   
   // Thanks
@@ -99,7 +99,7 @@ const getAIResponse = (input: string, messageHistory: Message[]): string => {
   
   // Goodbye
   if (lowerInput.includes("au revoir") || lowerInput.includes("bye") || lowerInput.includes("à bientôt")) {
-    return "Au revoir ! 👋\n\nMerci d'avoir utilisé l'assistant KETNEY. Passez une excellente journée !\n\n🇨🇩 *KETNEY - Votre argent, simplifié*";
+    return "Au revoir ! 👋\n\nMerci d'avoir utilisé l'assistant KaziPay. Passez une excellente journée !\n\n🇨🇩 *KaziPay - Votre argent, simplifié*";
   }
   
   // Default intelligent response
@@ -112,7 +112,7 @@ const getAIResponse = (input: string, messageHistory: Message[]): string => {
 
 // Mock agent responses for live chat
 const agentResponses = [
-  "Bonjour ! Je suis Marie du support KETNEY. Je vois votre demande et je consulte votre dossier...",
+  "Bonjour ! Je suis Marie du support KaziPay. Je vois votre demande et je consulte votre dossier...",
   "Merci pour ces informations. Pouvez-vous me donner le numéro de référence de la transaction ?",
   "Je comprends votre préoccupation. Laissez-moi vérifier cela dans notre système...",
   "D'après nos informations, je vois que la transaction a bien été effectuée. Le délai de traitement est de 5-10 minutes.",
@@ -130,7 +130,7 @@ const Support = () => {
     {
       id: "ai-welcome",
       type: "bot",
-      content: "Bonjour ! 👋 Je suis l'assistant virtuel KETNEY, propulsé par l'intelligence artificielle.\n\nJe peux répondre à vos questions sur :\n• Transferts d'argent\n• Frais et commissions\n• Agents et points de service\n• Sécurité du compte\n\nComment puis-je vous aider aujourd'hui ?",
+      content: "Bonjour ! 👋 Je suis l'assistant virtuel KaziPay, propulsé par l'intelligence artificielle.\n\nJe peux répondre à vos questions sur :\n• Transferts d'argent\n• Frais et commissions\n• Agents et points de service\n• Sécurité du compte\n\nComment puis-je vous aider aujourd'hui ?",
       timestamp: new Date()
     }
   ]);
@@ -139,7 +139,7 @@ const Support = () => {
     {
       id: "chat-welcome",
       type: "agent",
-      content: "Bienvenue sur le support KETNEY ! 👋\n\nUn agent va vous répondre dans quelques instants. En attendant, décrivez votre problème pour nous aider à vous assister plus rapidement.",
+      content: "Bienvenue sur le support KaziPay ! 👋\n\nUn agent va vous répondre dans quelques instants. En attendant, décrivez votre problème pour nous aider à vous assister plus rapidement.",
       timestamp: new Date(),
       status: "read"
     }
@@ -313,17 +313,17 @@ const Support = () => {
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-foreground">Téléphone</p>
-                      <p className="text-sm text-muted-foreground">+243 999 KETNEY</p>
+                      <p className="text-sm text-muted-foreground">+243 999 KaziPay</p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                   </a>
-                  <a href="mailto:support@ketney.cd" className="flex items-center gap-4 p-4">
+                  <a href="mailto:support@kazipay.cd" className="flex items-center gap-4 p-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                       <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-foreground">Email</p>
-                      <p className="text-sm text-muted-foreground">support@ketney.cd</p>
+                      <p className="text-sm text-muted-foreground">support@kazipay.cd</p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                   </a>
@@ -357,7 +357,7 @@ const Support = () => {
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">Assistant KETNEY</p>
+                    <p className="font-medium text-foreground">Assistant KaziPay</p>
                     <p className="text-xs text-muted-foreground">Propulsé par IA • Disponible 24/7</p>
                   </div>
                 </div>
@@ -479,7 +479,7 @@ const Support = () => {
                     }`} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Marie K. - Support KETNEY</p>
+                    <p className="font-medium text-foreground">Marie K. - Support KaziPay</p>
                     <div className="flex items-center gap-2">
                       {agentStatus === "typing" ? (
                         <span className="text-sm text-primary">En train d'écrire...</span>

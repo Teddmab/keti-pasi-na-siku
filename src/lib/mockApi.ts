@@ -1,5 +1,5 @@
 // Centralized Mock API Gateway Utility
-// Represents secure API Gateway architecture for KETNEY MVP
+// Represents secure API Gateway architecture for KaziPay MVP
 
 export interface ApiResponse<T> {
   success: boolean;
