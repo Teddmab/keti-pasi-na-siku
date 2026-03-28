@@ -52,7 +52,7 @@ const Send = () => {
       setRecipient(phone);
       setRecipientName(name);
       // Auto-select Ketney network for pre-filled contacts
-      setSelectedNetwork(networks.find(n => n.id === "ketney") || null);
+      setSelectedNetwork(networks.find(n => n.id === "kazipay") || null);
       setStep("amount");
     }
   }, [searchParams]);

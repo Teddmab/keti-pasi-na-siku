@@ -15,8 +15,8 @@ const Receive = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "Mon numéro KETNEY",
-        text: `Envoyez-moi de l'argent sur KETNEY: +243 ${accountNumber}`,
+        title: "Mon numéro KaziPay",
+        text: `Envoyez-moi de l'argent sur KaziPay: +243 ${accountNumber}`,
       });
     } else {
       handleCopy();
@@ -75,7 +75,7 @@ const Receive = () => {
           className="w-full max-w-xs mt-6"
         >
           <p className="text-muted-foreground text-sm mb-2 text-center">
-            Mon numéro KETNEY :
+            Mon numéro KaziPay :
           </p>
           <div className="card-elevated p-4 flex items-center justify-between">
             <span className="text-lg font-bold text-foreground">+243 {accountNumber}</span>

@@ -463,7 +463,7 @@ const Settings = () => {
       {/* Version - Only on mobile */}
       {isMobile && (
         <div className="px-6 py-8 text-center">
-          <p className="text-sm text-muted-foreground">KETNEY v1.0.0</p>
+          <p className="text-sm text-muted-foreground">KaziPay v1.0.0</p>
         </div>
       )}
 

@@ -34,7 +34,7 @@ const Welcome = () => {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="text-4xl font-extrabold text-foreground mb-3"
         >
-          KETNEY
+          KaziPay
         </motion.h1>
 
         {/* Tagline */}
