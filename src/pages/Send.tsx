@@ -159,7 +159,7 @@ const Send = () => {
             recipient.replace(/\D/g, ""),
             selectedNetwork!.name.includes("Airtel") ? "Airtel" :
             selectedNetwork!.name.includes("Orange") ? "Orange" :
-            selectedNetwork!.name.includes("Vodacom") ? "Vodacom" : "Ketney",
+            selectedNetwork!.name.includes("Vodacom") ? "Vodacom" : "KaziPay",
             numericAmount,
             fee
           );

@@ -66,7 +66,7 @@ const QRScanner = () => {
             amount: numericAmount
           });
           
-          sendMoney(merchantInfo.name, merchantInfo.id, "Ketney", numericAmount, fee);
+          sendMoney(merchantInfo.name, merchantInfo.id, "KaziPay", numericAmount, fee);
           setStep("success");
           
           confetti({
