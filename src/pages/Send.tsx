@@ -23,7 +23,7 @@ const networks: Network[] = [
   { id: "airtel", name: "Airtel Money", icon: "📱", color: "bg-red-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
   { id: "orange", name: "Orange Money", icon: "🟠", color: "bg-primary", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
   { id: "vodacom", name: "Vodacom M-Pesa", icon: "📲", color: "bg-blue-500", feePercent: 1, clearingFee: 0.5, isInterNetwork: true },
-  { id: "ketney", name: "Ketney à Ketney", icon: "💚", color: "bg-accent", feePercent: 0, clearingFee: 0, isInterNetwork: false },
+  { id: "kazipay", name: "KaziPay à KaziPay", icon: "💚", color: "bg-accent", feePercent: 0, clearingFee: 0, isInterNetwork: false },
 ];
 
 // High-value threshold for MFA

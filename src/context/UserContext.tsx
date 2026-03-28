@@ -5,7 +5,7 @@ export interface Transaction {
   type: "sent" | "received" | "cashin" | "cashout" | "bill";
   recipient: string;
   recipientPhone?: string;
-  network: "Airtel" | "Orange" | "Vodacom" | "Ketney";
+  network: "Airtel" | "Orange" | "Vodacom" | "KaziPay";
   amount: number;
   fee: number;
   status: "completed" | "pending" | "failed";

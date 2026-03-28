@@ -67,7 +67,7 @@ const TransactionItem = ({
         return "text-primary";
       case "Vodacom":
         return "text-blue-500";
-      case "Ketney":
+      case "KaziPay":
         return "text-accent";
     }
   };
