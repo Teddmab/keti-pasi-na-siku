@@ -51,7 +51,7 @@ const Send = () => {
     if (phone && name) {
       setRecipient(phone);
       setRecipientName(name);
-      // Auto-select Ketney network for pre-filled contacts
+      // Auto-select KaziPay network for pre-filled contacts
       setSelectedNetwork(networks.find(n => n.id === "kazipay") || null);
       setStep("amount");
     }
@@ -383,7 +383,7 @@ const Send = () => {
                     <div className="bg-primary-soft rounded-lg p-2 flex items-start gap-2">
                       <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-foreground">
-                        Transfert Inter-réseaux: Inclut les frais de clearing pour la compensation entre KETNEY et {selectedNetwork?.name}.
+                        Transfert Inter-réseaux: Inclut les frais de clearing pour la compensation entre KaziPay et {selectedNetwork?.name}.
                       </p>
                     </div>
                   </>
