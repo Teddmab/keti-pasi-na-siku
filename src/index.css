@@ -2,129 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
-/* KaziPay FinTech Design System
-   iOS-inspired clean design for DRC mobile wallet
+/* KaziPay Design System v1.0
+   Based on Design Charter — Afrotouch OU
+   Primary: Green #0B7A5C · Night #1A1A2E · Gold #F5C842
+   Font: Plus Jakarta Sans
 */
-
-/* SF Pro Display-like system font stack for iOS feel */
 
 @layer base {
   :root {
-    /* Core Brand Colors - Warm Amber/Orange */
-    --primary: 24 100% 50%;
+    /* Core Brand — Green Forest */
+    --primary: 161 83% 27%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 24 100% 95%;
-    
-    /* Background System - Warm Cream */
-    --background: 40 33% 98%;
-    --foreground: 222 47% 11%;
-    
+    --primary-soft: 155 55% 93%;
+
+    /* Background — Warm Surface */
+    --background: 40 18% 96%;
+    --foreground: 236 30% 14%;
+
     /* Card & Surface */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --card-elevated: 0 0% 100%;
-    
+    --card-foreground: 236 30% 14%;
+
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    
-    /* Secondary - Soft Gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-    
+    --popover-foreground: 236 30% 14%;
+
+    /* Secondary */
+    --secondary: 40 14% 93%;
+    --secondary-foreground: 236 30% 14%;
+
     /* Muted */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-    
-    /* Accent - Teal for success */
-    --accent: 168 76% 42%;
-    --accent-foreground: 0 0% 100%;
-    
-    /* Success State */
-    --success: 168 76% 42%;
+    --muted: 40 14% 93%;
+    --muted-foreground: 240 4% 56%;
+
+    /* Accent — Gold */
+    --accent: 43 91% 61%;
+    --accent-foreground: 236 30% 14%;
+
+    /* Success */
+    --success: 157 69% 37%;
     --success-foreground: 0 0% 100%;
-    
-    /* Transaction Colors */
-    --transaction-outgoing: 222 47% 20%;
-    --transaction-incoming: 160 84% 39%;
-    
-    /* Destructive */
-    --destructive: 0 84% 60%;
+
+    /* Destructive / Error */
+    --destructive: 1 72% 59%;
     --destructive-foreground: 0 0% 100%;
-    
+
     /* UI Elements */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 24 100% 50%;
-    --radius: 1rem;
-    
-    /* Network Brand Colors */
-    --airtel-red: 0 84% 50%;
-    --orange-brand: 24 100% 50%;
-    --vodacom-blue: 210 100% 45%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(24 100% 50%) 0%, hsl(35 100% 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 33% 98%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(24 100% 50%) 0%, hsl(35 100% 55%) 50%, hsl(40 33% 98%) 100%);
-    
+    --border: 33 14% 85%;
+    --input: 33 14% 85%;
+    --ring: 161 83% 27%;
+    --radius: 10px;
+
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.1), 0 2px 4px -2px hsl(222 47% 11% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.1), 0 4px 6px -4px hsl(222 47% 11% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(222 47% 11% / 0.1), 0 8px 10px -6px hsl(222 47% 11% / 0.1);
-    --shadow-card: 0 2px 8px -2px hsl(222 47% 11% / 0.08), 0 4px 16px -4px hsl(222 47% 11% / 0.12);
-    --shadow-button: 0 4px 14px -3px hsl(24 100% 50% / 0.4);
-    
-    /* Sidebar (keeping for compatibility) */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 24 100% 50%;
+    --shadow-sm: 0 1px 3px rgba(26,26,46,0.08), 0 1px 2px rgba(26,26,46,0.04);
+    --shadow-md: 0 4px 12px rgba(26,26,46,0.10), 0 2px 4px rgba(26,26,46,0.06);
+    --shadow-lg: 0 12px 32px rgba(26,26,46,0.14), 0 4px 8px rgba(26,26,46,0.08);
+    --shadow-card: 0 1px 3px rgba(26,26,46,0.08), 0 1px 2px rgba(26,26,46,0.04);
+    --shadow-button: 0 4px 12px rgba(11,122,92,0.3);
+
+    /* Sidebar */
+    --sidebar-background: 236 30% 14%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 161 83% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 236 22% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 236 22% 18%;
+    --sidebar-ring: 161 83% 27%;
   }
 
   .dark {
-    --primary: 24 100% 55%;
+    --primary: 157 69% 37%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 24 30% 15%;
-    
-    --background: 222 47% 6%;
+    --primary-soft: 161 30% 15%;
+
+    --background: 236 30% 8%;
     --foreground: 210 40% 98%;
-    
-    --card: 222 47% 9%;
+
+    --card: 236 30% 11%;
     --card-foreground: 210 40% 98%;
-    
-    --popover: 222 47% 9%;
+
+    --popover: 236 30% 11%;
     --popover-foreground: 210 40% 98%;
-    
-    --secondary: 217 33% 17%;
+
+    --secondary: 236 22% 18%;
     --secondary-foreground: 210 40% 98%;
-    
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    
-    --accent: 168 76% 42%;
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 63% 31%;
+
+    --muted: 236 22% 18%;
+    --muted-foreground: 240 4% 56%;
+
+    --accent: 43 91% 61%;
+    --accent-foreground: 236 30% 14%;
+
+    --destructive: 1 72% 40%;
     --destructive-foreground: 210 40% 98%;
-    
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 24 100% 55%;
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 24 100% 55%;
+
+    --border: 236 22% 18%;
+    --input: 236 22% 18%;
+    --ring: 157 69% 37%;
+
+    --sidebar-background: 236 30% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 157 69% 37%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 24 100% 55%;
+    --sidebar-accent: 236 22% 14%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 236 22% 14%;
+    --sidebar-ring: 157 69% 37%;
   }
 }
 
@@ -135,28 +119,26 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    /* True iOS system font stack */
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Helvetica", system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "kern" 1;
     text-rendering: optimizeLegibility;
-    /* iOS letter spacing */
-    letter-spacing: -0.01em;
+    font-size: 15px;
+    line-height: 1.6;
   }
-  
-  /* iOS-style headings with tighter tracking */
+
   h1, h2, h3, h4, h5, h6 {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     letter-spacing: -0.02em;
-    font-weight: 600;
+    font-weight: 700;
   }
-  
-  /* iOS body text */
-  p, span, label, input, button {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+
+  /* Monospace for phone numbers, IDs, codes */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
-  
+
   /* Mobile viewport fix */
   html, body, #root {
     height: 100%;
@@ -165,45 +147,47 @@
 }
 
 @layer components {
-  /* Primary Button with glow */
+  /* Primary Button — Green CTA */
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold py-4 px-6 rounded-2xl;
-    @apply transition-all duration-200 ease-out;
-    @apply hover:scale-[1.02] active:scale-[0.98];
+    @apply bg-primary text-primary-foreground font-semibold py-4 px-7 rounded-kp-md;
+    @apply transition-all duration-150 ease-in-out;
+    @apply hover:-translate-y-0.5 active:scale-[0.98];
     box-shadow: var(--shadow-button);
   }
-  
+
   .btn-primary:hover {
-    box-shadow: 0 6px 20px -4px hsl(24 100% 50% / 0.5);
+    box-shadow: 0 6px 20px rgba(11,122,92,0.4);
   }
-  
-  /* Secondary Button */
+
+  /* Secondary Button — Green tint */
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground font-semibold py-4 px-6 rounded-2xl;
-    @apply transition-all duration-200 ease-out;
-    @apply hover:bg-muted active:scale-[0.98];
+    @apply bg-primary-soft text-primary font-semibold py-4 px-6 rounded-kp-md;
+    @apply border border-kp-green-200;
+    @apply transition-all duration-150 ease-in-out;
+    @apply hover:bg-kp-green-100 active:scale-[0.98];
   }
-  
+
   /* Ghost Button */
   .btn-ghost {
-    @apply text-foreground font-medium py-3 px-4 rounded-xl;
-    @apply transition-colors duration-200;
-    @apply hover:bg-secondary;
+    @apply text-kp-text-2 font-semibold py-3 px-4 rounded-kp-md;
+    @apply border border-kp-border;
+    @apply transition-all duration-150;
+    @apply hover:bg-kp-surface;
   }
-  
+
   /* Card with elevation */
   .card-elevated {
-    @apply bg-card rounded-3xl;
+    @apply bg-card rounded-kp-lg border border-kp-border;
     box-shadow: var(--shadow-card);
   }
-  
-  /* Balance Card Gradient with Premium Pattern */
+
+  /* Balance Card — Night background */
   .balance-card {
-    background: var(--gradient-primary);
-    @apply text-primary-foreground rounded-3xl p-6 relative overflow-hidden;
+    @apply text-white rounded-kp-xl p-6 relative overflow-hidden;
+    background: #1A1A2E;
     box-shadow: var(--shadow-lg);
   }
-  
+
   .balance-card::before {
     content: '';
     position: absolute;
@@ -211,12 +195,12 @@
     right: -30%;
     width: 200%;
     height: 200%;
-    background: 
-      radial-gradient(circle at 30% 70%, hsl(0 0% 100% / 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 70% 30%, hsl(0 0% 100% / 0.05) 0%, transparent 40%);
+    background:
+      radial-gradient(circle at 30% 70%, rgba(11,122,92,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 70% 30%, rgba(245,200,66,0.08) 0%, transparent 40%);
     pointer-events: none;
   }
-  
+
   .balance-card::after {
     content: 'K';
     position: absolute;
@@ -224,91 +208,97 @@
     bottom: -40px;
     font-size: 180px;
     font-weight: 800;
-    color: hsl(0 0% 100% / 0.08);
+    color: rgba(255,255,255,0.04);
     pointer-events: none;
     line-height: 1;
   }
-  
-  /* Action Card Hover Effects */
+
+  /* Action Card Hover */
   .action-card {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-all duration-150 ease-in-out;
   }
-  
+
   .action-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -6px hsl(222 47% 11% / 0.15), 0 6px 12px -4px hsl(222 47% 11% / 0.1);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
-  
+
   /* Transaction Item */
   .transaction-item {
-    @apply flex items-center gap-4 p-4 rounded-2xl;
+    @apply flex items-center gap-4 p-4 rounded-kp-md;
     @apply transition-colors duration-150;
-    @apply hover:bg-secondary/50 active:bg-secondary;
+    @apply hover:bg-kp-surface active:bg-kp-surface-2;
   }
-  
+
   /* Network Selector */
   .network-option {
-    @apply flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-transparent;
-    @apply transition-all duration-200;
+    @apply flex flex-col items-center gap-2 p-4 rounded-kp-md border-2 border-transparent;
+    @apply transition-all duration-150;
     @apply hover:border-primary/30 cursor-pointer;
   }
-  
+
   .network-option.selected {
     @apply border-primary bg-primary-soft;
   }
-  
-  /* Input Field */
+
+  /* Input Field — Design Charter spec */
   .input-field {
-    @apply w-full bg-secondary/50 border border-border rounded-2xl px-4 py-4;
-    @apply text-foreground placeholder:text-muted-foreground;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
-    @apply transition-all duration-200;
+    @apply w-full bg-white border-[1.5px] border-kp-border rounded-kp-md px-4 py-4;
+    @apply text-kp-text-1 placeholder:text-kp-text-3;
+    @apply outline-none transition-all duration-150;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 15px;
   }
-  
+
+  .input-field:focus {
+    border-color: #1D9E75;
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+  }
+
   /* Bottom Nav */
   .nav-item {
     @apply flex flex-col items-center gap-1 py-2 px-4;
-    @apply text-muted-foreground transition-colors duration-200;
+    @apply text-kp-text-3 transition-colors duration-150;
   }
-  
+
   .nav-item.active {
     @apply text-primary;
   }
-  
+
   /* Floating Action Button */
   .fab {
     @apply w-14 h-14 rounded-full bg-primary text-primary-foreground;
     @apply flex items-center justify-center;
-    @apply transition-all duration-200;
+    @apply transition-all duration-150;
     @apply hover:scale-105 active:scale-95;
     box-shadow: var(--shadow-button);
   }
-  
+
   /* Page Container */
   .page-container {
     @apply min-h-screen bg-background pb-24;
   }
-  
+
   /* Safe Area Padding */
   .safe-top {
     padding-top: max(env(safe-area-inset-top), 1rem);
   }
-  
+
   .safe-bottom {
     padding-bottom: max(env(safe-area-inset-bottom), 1rem);
   }
 }
 
 @layer utilities {
-  /* Amount Display */
+  /* Amount Display — tabular nums */
   .amount-display {
     @apply font-bold tracking-tight;
     font-variant-numeric: tabular-nums;
   }
-  
-  /* Gradient Text */
+
+  /* Gradient Text — Green */
   .gradient-text {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #0B7A5C 0%, #1D9E75 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
